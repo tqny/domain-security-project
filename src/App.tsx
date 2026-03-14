@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AppProvider } from './data/store'
-import Layout from './components/shell/Layout'
-import Overview from './components/pages/Overview'
-import Queue from './components/pages/Queue'
-import Investigation from './components/pages/Investigation'
-import Domains from './components/pages/Domains'
-import Enforcement from './components/pages/Enforcement'
-import About from './components/pages/About'
-import './styles/global.css'
+import { AppProvider } from '@/data/store'
+import Layout from '@/components/shell/Layout'
+import Overview from '@/components/pages/Overview'
+import Queue from '@/components/pages/Queue'
+import Investigation from '@/components/pages/Investigation'
+import Domains from '@/components/pages/Domains'
+import Enforcement from '@/components/pages/Enforcement'
+import About from '@/components/pages/About'
+import '@/styles/global.css'
 
 function App() {
   return (

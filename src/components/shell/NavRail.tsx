@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { useAppState } from '../../data/store'
+import { useAppState } from '@/data/store'
+import { cn } from '@/lib/utils'
 
 interface NavItem {
   to: string
@@ -26,33 +27,52 @@ export default function NavRail() {
   ]
 
   return (
-    <nav className="nav-rail">
-      <div className="nav-rail-header">
-        <span className="nav-rail-title">BPCC</span>
+    <nav className="flex w-56 flex-col shrink-0 bg-card border-r border-border">
+      {/* Brand */}
+      <div className="px-5 py-6">
+        <span className="text-lg font-bold tracking-widest text-foreground">BPCC</span>
       </div>
-      <ul className="nav-rail-links">
+
+      {/* Navigation links */}
+      <div className="flex flex-1 flex-col gap-1 px-3 py-1">
         {navItems.map((item) => (
-          <li key={item.to}>
-            <NavLink
-              to={item.to}
-              className={({ isActive }) =>
-                `nav-rail-link${isActive ? ' nav-rail-link--active' : ''}`
-              }
-              end={item.to === '/'}
-            >
-              <span className="nav-rail-link-label">{item.label}</span>
-              {item.badge !== undefined && (
-                <span className="nav-rail-badge">{item.badge}</span>
-              )}
-            </NavLink>
-          </li>
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === '/'}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center justify-between rounded-lg px-3 py-2 text-sm no-underline transition-colors duration-150',
+                isActive
+                  ? 'bg-primary/[0.14] text-primary font-medium'
+                  : 'text-text-secondary hover:bg-surface-elevated/60 hover:text-foreground'
+              )
+            }
+          >
+            <span>{item.label}</span>
+            {item.badge !== undefined && (
+              <span className={cn(
+                'min-w-5 rounded-full px-1.5 py-0.5 text-center text-[11px] font-semibold leading-none',
+                'bg-surface-elevated text-text-secondary'
+              )}>
+                {item.badge}
+              </span>
+            )}
+          </NavLink>
         ))}
-      </ul>
-      <div className="nav-rail-footer">
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-border px-3 py-3">
         <NavLink
           to="/about"
           className={({ isActive }) =>
-            `nav-rail-link${isActive ? ' nav-rail-link--active' : ''}`
+            cn(
+              'flex rounded-lg px-3 py-2 text-sm no-underline transition-colors duration-150',
+              isActive
+                ? 'bg-primary/[0.14] text-primary font-medium'
+                : 'text-text-secondary hover:bg-surface-elevated/60 hover:text-foreground'
+            )
           }
         >
           About
