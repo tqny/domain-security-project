@@ -95,23 +95,66 @@ TBD — will decide during B5 (Operations Overview). Candidates: Recharts (easie
 
 ## Pass 2 — Component Patterns
 
-<!-- Populate as components are built and solidify during BUILD phase. -->
+Populated during B1 (Case Queue). These patterns are reused by B2–B5.
 
 ### Component Vocabulary
 
-_To be filled during Phase B as shared primitives emerge from B1._
+**DataTable** (`src/components/shared/DataTable.tsx`)
+- Generic sortable table with typed column definitions
+- Container: `rounded-lg border border-border/60` — very subtle border
+- Header row: `bg-surface-alt/50` — barely distinct from body, muted uppercase labels
+- Body rows: `py-3.5` padding, `border-b border-border/50` separators
+- Selected row: `bg-primary/[0.06] border-l-2 border-l-primary` — subtle amber highlight + amber left accent
+- Hover: `hover:bg-surface-elevated/40`
+- Transitions: `duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)]` (design criteria base motion)
 
-Expected shared components:
-- DataTable (sortable, filterable)
-- DetailPanel (right-side or overlay)
-- FilterBar (search + dropdowns)
-- StatusChip (color-coded by status)
-- MetricCard (for overview page)
-- SectionHeader (page title + subtitle pattern)
+**DetailPanel** (`src/components/shared/DetailPanel.tsx`)
+- Right-side panel, 400px fixed width, `bg-surface`
+- Breaks out of Layout padding via negative margins when open (page-level concern)
+- Sticky header with `text-base font-semibold` title + close button
+- Scrollable content area with `px-5 py-4` padding
+- Uses `<aside>` element for semantics
+
+**FilterBar** (`src/components/shared/FilterBar.tsx`)
+- Search input + dropdown filters + clear button
+- Inputs: `h-8 rounded-lg bg-surface border-border` with amber focus ring
+- Dropdowns: `appearance-none` with Lucide `ChevronDown` overlay
+- Clear button appears when any filter is active
+- Fast transitions: `duration-[120ms]`
+
+**StatusChip** (`src/components/shared/StatusChip.tsx`)
+- Pill-shaped (`rounded-full`) inline badge for status and priority values
+- Color mapping: semantic backgrounds at 15–20% opacity with matching text color
+- Status: New (amber), Triaged (secondary amber), Investigating (warning), Enforcement (destructive), Closed (muted)
+- Priority: Low (muted), Medium (secondary amber), High (warning), Critical (destructive)
+
+**Page Header Pattern** (established in Queue, reuse in B2–B5)
+- Title: `text-3xl font-bold tracking-tight text-foreground`
+- Subtitle: `mt-1 text-sm text-text-secondary`
 
 ### Spacing and Rhythm
 
-_To be documented as pages are built._
+- Page content sections: `space-y-6` (24px) between header, filters, and table
+- Layout main content: `px-10 py-8` (40px horizontal, 32px vertical)
+- Detail panel sections: `pt-5` top padding with `border-t border-border/50` dividers
+- Detail section headers: `mb-3` below title before content
+- Detail metadata rows: `py-1` vertical rhythm
+- Button groups: `gap-2` between buttons, `size="sm"` for controls
+
+### Motion System
+
+Centralized in `global.css` as CSS custom properties from design criteria:
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--duration-fast` | 120ms | Close buttons, filter clear, sort header hover |
+| `--duration-base` | 180ms | Row hover, nav link transitions |
+| `--duration-slow` | 280ms | Panel open/close (future) |
+| `--duration-scene` | 420ms | Page-level transitions (future) |
+| `--ease-standard` | cubic-bezier(0.22, 1, 0.36, 1) | All interactive transitions |
+| `--ease-exit` | cubic-bezier(0.4, 0, 1, 1) | Exit animations (future) |
+
+Applied via Tailwind arbitrary values: `duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)]`
 
 ### Responsive Behavior
 
@@ -122,7 +165,11 @@ Desktop-first. Responsive pass deferred to POLISH phase. Key principles from des
 
 ### State Patterns
 
-_To be documented as pages are built._
+- **Selected**: amber left border + subtle amber background tint
+- **Hover**: surface-elevated at 40% opacity
+- **Focus**: amber ring (`ring-ring`) on all interactive elements
+- **Active button**: `active:translate-y-px` press feedback
+- **Empty table**: centered muted message, generous vertical padding
 
 Loading: skeleton blocks matching final layout proportions (no spinners).
 Empty: concise copy + single CTA.
@@ -130,4 +177,9 @@ Error: inline, close to affected component, danger color.
 
 ### Deviations from Pass 1
 
-_None yet._
+- **Nav rail badges**: active state uses `bg-primary/20 text-primary` instead of generic surface elevated — ties badge to amber accent system when the nav item is active.
+- **Table header background**: uses `bg-surface-alt/50` instead of solid `bg-surface` — barely visible distinction matches reference's extremely subtle header treatment.
+- **Card containers use `rounded-xl` (20px)**: matches Torch reference exactly (computed 20px on all cards). Table container, note cards.
+- **No outer borders on card-like containers**: reference cards use zero borders — surface color contrast alone provides separation. Table container border removed; internal row dividers preserved for data readability.
+- **Headline weight 600 (semibold)**: reference uses weight 500 at 72px. Scaled to 600 for our smaller 30px context to maintain equivalent visual weight.
+- **All structural borders softened to `/40` opacity**: nav rail, detail panel left border, detail panel header — near-invisible, matching reference's borderless card aesthetic.

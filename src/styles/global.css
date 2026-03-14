@@ -68,6 +68,20 @@
     --warning: oklch(0.738 0.131 76.9);                /* #D89E3C */
     --text-secondary: oklch(0.729 0.015 88.7);         /* #ABA79D */
     --border-strong: oklch(0.305 0.005 156.9);         /* #2D302E — for explicit borders */
+
+    /* Extended accent colors from design criteria */
+    --accent-secondary: oklch(0.920 0.080 89.0);       /* #F7E0A0 — pale amber */
+    --accent-low: oklch(0.847 0.140 84.8 / 14%);      /* amber at 14% — subtle highlight */
+    --chart-grid: oklch(1 0 0 / 5%);                   /* rgba(255,255,255,0.05) */
+    --overlay-scrim: oklch(0 0 0 / 34%);               /* rgba(0,0,0,0.34) */
+
+    /* Motion tokens from design criteria */
+    --duration-fast: 120ms;
+    --duration-base: 180ms;
+    --duration-slow: 280ms;
+    --duration-scene: 420ms;
+    --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
 @theme inline {
@@ -120,6 +134,17 @@
     --color-warning: var(--warning);
     --color-text-secondary: var(--text-secondary);
     --color-border-strong: var(--border-strong);
+
+    /* Extended accent tokens */
+    --color-accent-secondary: var(--accent-secondary);
+    --color-accent-low: var(--accent-low);
+    --color-chart-grid: var(--chart-grid);
+    --color-overlay-scrim: var(--overlay-scrim);
+
+    /* Motion tokens — use via duration-[--duration-base] or arbitrary values */
+    --transition-duration-fast: var(--duration-fast);
+    --transition-duration-base: var(--duration-base);
+    --transition-duration-slow: var(--duration-slow);
 
     /* Shadow scale from design criteria */
     --shadow-subtle: 0 12px 24px -18px rgba(0,0,0,0.42);
