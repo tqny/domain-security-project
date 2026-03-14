@@ -45,8 +45,8 @@ Each page: implement primary surface + support element + interactions. Verify be
 
 B1 establishes shared component patterns (table, detail panel, filter bar, status chips) that B2–B5 reuse.
 
-- [ ] **B1: Case Queue** — Table with search/filter/sort/pagination. Detail panel with status controls, owner, notes. Done: can search, filter, sort cases. Selecting a case shows detail. Can update status and add notes.
-- [ ] **B2: Investigation** — Case selector, signal chart, evidence list, AI summary, decision module, timeline. Done: selecting a case shows full investigation view with chart + context + actions.
+- [x] **B1: Case Queue** — Table with search/filter/sort/pagination. Detail panel with status controls, owner, notes. Done: can search, filter, sort cases. Selecting a case shows detail. Can update status and add notes.
+- [x] **B2: Investigation** — Case selector, signal chart, evidence list, AI summary, decision module, timeline. Done: selecting a case shows full investigation view with chart + context + actions.
 - [ ] **B3: Domain Portfolio** — Domain table with search/filter. Detail panel with security controls, risk flags, linked cases, registrar log. Done: can browse domains, view detail, add log entries.
 - [ ] **B4: Enforcement Tracker** — Action table with vendor/status filters. Detail panel with SLA tracking, status controls, notes. Vendor workload summary. Done: can filter actions, update status, see SLA breach indicators.
 - [ ] **B5: Operations Overview** — Composite trend chart, threat distribution, program health summary. Done: overview renders aggregate data from context. Read-only — no mutations.

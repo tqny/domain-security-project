@@ -17,7 +17,7 @@ Update this field as the project advances.
 
 ## What To Do Right Now
 
-Foundation is complete (A1–A6). Design system is applied (Warm Contrast Analytics). Next: build the 5 workflow pages.
+Foundation is complete (A1–A6). Design system is applied (Warm Contrast Analytics). B1 Case Queue and B2 Investigation are complete. Next: B3 Domain Portfolio.
 
 1. Read this file, then follow the read order below.
 2. Work from `docs/tasks.md` — Phase B tasks, one page at a time.
