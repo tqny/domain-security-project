@@ -9,7 +9,11 @@
       "Bash(npx tsc:*)",
       "Bash(npx vite:*)",
       "Bash(npx shadcn@latest init --preset base-nova --template vite --yes)",
-      "Bash(npx shadcn@latest init --preset nova --template vite --yes)"
+      "Bash(npx shadcn@latest init --preset nova --template vite --yes)",
+      "Bash(npx shadcn@latest add badge separator --yes)",
+      "Bash(git -C /Users/tqny/Documents/domain-security-project check-ignore .claude/settings.local.json)",
+      "Bash(git -C /Users/tqny/Documents/domain-security-project add package.json package-lock.json vite.config.ts tsconfig.node.json src/styles/global.css src/App.tsx src/components/pages/About.tsx src/components/pages/Domains.tsx src/components/pages/Enforcement.tsx src/components/pages/Investigation.tsx src/components/pages/Overview.tsx src/components/pages/Queue.tsx src/components/shell/Layout.tsx src/components/shell/NavRail.tsx src/components/ui/badge.tsx src/components/ui/separator.tsx)",
+      "Bash(git -C:*)"
     ]
   }
 }
