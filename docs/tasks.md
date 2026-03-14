@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-PLAN
+BUILD — Phase B (Pages)
 
 ## Lifecycle
 
@@ -23,26 +23,27 @@ BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
 - [x] Draft spec.md
 - [x] Draft architecture.md
 - [x] Draft tasks.md (this file)
-- [~] Draft design.md Pass 1 — **blocked on design references from Tony**
-- [ ] Draft README.md
+- [x] Draft design.md Pass 1
+- [x] Draft README.md
 - [ ] Run `/plan-eng-review` — lock in architecture with diagrams and edge cases
 - [ ] Initialize GitHub remote
-- [ ] Scaffold React + Vite + TypeScript project
 
 ---
 
 ## Build Tasks — Phase A: Foundation
 
-- [ ] **A1: Project scaffold** — Vite + React + TypeScript + router. Verify dev server runs. Done: app renders a hello world at localhost.
-- [ ] **A2: TypeScript data model** — Define all interfaces in `types/index.ts`. Done: all 5 entity types + enums + state shape typed.
-- [ ] **A3: Seed data** — Create `data/seed.ts` with realistic mock data (~10 cases, ~4 domains, ~4 vendors, ~6 actions, evidence). Done: seed function returns valid typed state.
-- [ ] **A4: State management** — React context + localStorage persistence + reset function. Done: context provides state + mutations, persists on change, reset works.
-- [ ] **A5: Design system foundation** — Tokens, global styles, layout primitives. **Blocked on design references.** Done: tokens file exists, app shell uses tokens.
-- [ ] **A6: App shell** — Router (6 routes), nav rail with workflow labels + count badges, layout wrapper. Done: all routes render placeholder pages, nav highlights active route, badges show counts.
+- [x] **A1: Project scaffold** — Vite + React + TypeScript + React Router v7 + Tailwind v4 + shadcn/ui. Dev server verified.
+- [x] **A2: TypeScript data model** — All 5 entity types + enums + state shape in `src/types/index.ts`.
+- [x] **A3: Seed data** — ~10 cases, ~4 domains, ~4 vendors, ~6 actions, evidence in `src/data/seed.ts`.
+- [x] **A4: State management** — React context + localStorage persistence + reset function in `src/data/store.tsx`.
+- [x] **A5: Design system foundation** — Warm Contrast Analytics tokens mapped into `src/styles/global.css`. Amber accent, dark shell on warm canvas. Geist font. Design criteria files at `~/Desktop/domain design criteria/`.
+- [x] **A6: App shell** — Router (6 routes), nav rail with workflow labels + count badges, framed layout (dark rounded shell on amber canvas). All routes render placeholder pages.
 
 ## Build Tasks — Phase B: Pages (build order)
 
 Each page: implement primary surface + support element + interactions. Verify before moving on.
+
+B1 establishes shared component patterns (table, detail panel, filter bar, status chips) that B2–B5 reuse.
 
 - [ ] **B1: Case Queue** — Table with search/filter/sort/pagination. Detail panel with status controls, owner, notes. Done: can search, filter, sort cases. Selecting a case shows detail. Can update status and add notes.
 - [ ] **B2: Investigation** — Case selector, signal chart, evidence list, AI summary, decision module, timeline. Done: selecting a case shows full investigation view with chart + context + actions.

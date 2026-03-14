@@ -7,9 +7,9 @@ Part of the portfolio at https://tqny.github.io/Tony-s-Site/
 
 ## Current Phase
 
-**PLAN**
+**BUILD — Phase B (Pages)**
 
-Phases progress as: BRIEF → PLAN → BUILD → POLISH
+Phases progress as: BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
 
 Update this field as the project advances.
 
@@ -17,25 +17,21 @@ Update this field as the project advances.
 
 ## What To Do Right Now
 
-This is a new project. Only the project name has been established.
+Foundation is complete (A1–A6). Design system is applied (Warm Contrast Analytics). Next: build the 5 workflow pages.
 
-1. Read `V3-master-prompt.md` to understand the methodology.
-2. Read `brief-template.md` to understand the target brief format.
-3. Ask Tony for his **project idea or full project brief**.
-4. If he provides just an idea, ask structured questions to build out a complete brief. Cover all the major sections in `brief-template.md`. Don't rush — a strong brief sets up the entire project.
-5. **Run `/plan-product-review`** to challenge and refine the brief against portfolio criteria. This pushes the project toward its highest-potential version.
-6. Once the brief is solid, transition to **PLAN** phase:
-   - Update this file's "Current Phase" to PLAN
-   - Follow the V3 prompt's output behavior: framing, MVP/scope, project selection check, stack recommendation, module architecture, design direction (Pass 1), About This Project recommendation
-   - Populate `docs/spec.md`, `docs/architecture.md`, `docs/tasks.md`, `docs/design.md`, and `README.md`
-   - **Run `/plan-eng-review`** to lock in architecture with diagrams, edge cases, and build-readiness.
-7. Once planning is complete, transition to **BUILD** phase:
-   - Update this file's "Current Phase" to BUILD
-   - Work from `docs/tasks.md`, one scoped task at a time
-   - Verify each task before moving on
-   - **Run `/review`** before creating PRs — catches console errors, accessibility issues, and polish problems
-   - **Run `/browse`** for visual QA — screenshots, responsive checks, user flow verification via headless browser
-   - **Run `/ship`** when a feature branch is ready — automates sync, checks, push, and PR creation
+1. Read this file, then follow the read order below.
+2. Work from `docs/tasks.md` — Phase B tasks, one page at a time.
+3. Build order: B1 Case Queue → B2 Investigation → B3 Domain Portfolio → B4 Enforcement Tracker → B5 Operations Overview.
+4. B1 establishes shared component patterns (table, detail panel, filter bar, status chips) that B2–B5 reuse.
+5. After Phase B, move to Phase C (portfolio surface: About page, breadcrumbs, nav badges, reset demo).
+6. Then Phase D (ship: deployment, review, README final).
+7. **Run `/review`** before creating PRs — catches console errors, accessibility issues, and polish problems.
+8. **Run `/browse`** for visual QA — screenshots, responsive checks, user flow verification via headless browser.
+9. **Run `/ship`** when a feature branch is ready — automates sync, checks, push, and PR creation.
+
+### Design Authority
+
+The design system is documented in `docs/design.md`. The source-of-truth criteria files live at `~/Desktop/domain design criteria/` (design-criteria.jsonc + developer-brief.md). All tokens are mapped into `src/styles/global.css`. When building components, follow the Warm Contrast Analytics system — amber accent is rationed deliberately.
 
 ---
 
