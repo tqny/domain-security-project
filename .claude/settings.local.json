@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find '/Users/tqny/Documents/Speculo 2' -type f -name *.md -o -name *.txt -o -name package.json -o -name .env*)",
+      "Bash(find '/Users/tqny/Documents/Meta Project' -type d -name *security*)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx shadcn@latest init --preset base-nova --template vite --yes)",
+      "Bash(npx shadcn@latest init --preset nova --template vite --yes)"
+    ]
+  }
+}
