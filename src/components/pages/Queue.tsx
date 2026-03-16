@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppState } from '@/data/store'
 import type { Case, CaseStatus, Priority } from '@/types'
@@ -7,6 +7,8 @@ import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
 import DetailPanel from '@/components/shared/DetailPanel'
 import StatusChip from '@/components/shared/StatusChip'
 import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { MoreHorizontal } from 'lucide-react'
 
 // === Filter definitions ===
 
@@ -286,11 +288,44 @@ function DetailSection({ title, children }: { title: string; children: React.Rea
 // === Queue Page ===
 
 export default function Queue() {
-  const { state } = useAppState()
+  const { state, updateCaseStatus, escalateCasePriority } = useAppState()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({ status: '', priority: '', channel: '' })
   const [sort, setSort] = useState<SortState>({ key: 'createdAt', direction: 'desc' })
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, filters])
+
+  const columnsWithActions = useMemo<Column<Case>[]>(() => [
+    ...columns,
+    {
+      key: 'actions',
+      label: '',
+      sortable: false,
+      className: 'w-[40px]',
+      render: (c: Case) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-7 text-text-secondary hover:text-foreground" onClick={(e) => e.stopPropagation()} aria-label="Actions">
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => navigate(`/investigation?case=${c.id}`)}>Investigate</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => escalateCasePriority(c.id, 'Critical')}>Escalate Priority</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive" onClick={() => updateCaseStatus(c.id, 'Closed')}>Close Case</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ], [navigate, escalateCasePriority, updateCaseStatus])
 
   const filteredCases = useMemo(() => {
     let result = state.cases
@@ -317,6 +352,11 @@ export default function Queue() {
 
     return result
   }, [state.cases, search, filters, sort])
+
+  const paginatedCases = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredCases.slice(start, start + pageSize)
+  }, [filteredCases, currentPage, pageSize])
 
   const selectedCase = selectedCaseId ? state.cases.find((c) => c.id === selectedCaseId) ?? null : null
 
@@ -348,14 +388,21 @@ export default function Queue() {
 
         {/* Table */}
         <DataTable
-          columns={columns}
-          data={filteredCases}
+          columns={columnsWithActions}
+          data={paginatedCases}
           sort={sort}
           onSortChange={setSort}
           selectedId={selectedCaseId}
           onRowClick={(c) => setSelectedCaseId(c.id === selectedCaseId ? null : c.id)}
           getRowId={(c) => c.id}
           emptyMessage="No cases match your filters."
+          pagination={{
+            currentPage,
+            pageSize,
+            totalItems: filteredCases.length,
+            onPageChange: setCurrentPage,
+            onPageSizeChange: setPageSize,
+          }}
         />
       </div>
 

@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { ChevronUp, ChevronDown } from 'lucide-react'
+import { Pagination } from '@/components/shared/Pagination'
 
 export interface Column<T> {
   key: string
@@ -14,6 +15,14 @@ export interface SortState {
   direction: 'asc' | 'desc'
 }
 
+export interface PaginationState {
+  currentPage: number
+  pageSize: number
+  totalItems: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (size: number) => void
+}
+
 interface DataTableProps<T> {
   columns: Column<T>[]
   data: T[]
@@ -24,6 +33,7 @@ interface DataTableProps<T> {
   getRowId: (item: T) => string
   emptyMessage?: string
   className?: string
+  pagination?: PaginationState
 }
 
 export default function DataTable<T>({
@@ -36,6 +46,7 @@ export default function DataTable<T>({
   getRowId,
   emptyMessage = 'No results found.',
   className,
+  pagination,
 }: DataTableProps<T>) {
   function handleSort(key: string) {
     if (sort.key === key) {
@@ -108,6 +119,16 @@ export default function DataTable<T>({
           )}
         </tbody>
       </table>
+      {pagination && (
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={Math.ceil(pagination.totalItems / pagination.pageSize)}
+          pageSize={pagination.pageSize}
+          totalItems={pagination.totalItems}
+          onPageChange={pagination.onPageChange}
+          onPageSizeChange={pagination.onPageSizeChange}
+        />
+      )}
     </div>
   )
 }
