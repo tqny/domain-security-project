@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppState } from '@/data/store'
 import type { EnforcementAction, ActionStatus, ActionType } from '@/types'
@@ -7,7 +7,8 @@ import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
 import DetailPanel from '@/components/shared/DetailPanel'
 import StatusChip from '@/components/shared/StatusChip'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, Clock } from 'lucide-react'
+import { AlertTriangle, Clock, MoreHorizontal } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 // === Filter definitions ===
 
@@ -149,8 +150,8 @@ function sortActions(actions: EnforcementAction[], sort: SortState): Enforcement
     } else if (key === 'dueAt' || key === 'requestedAt') {
       cmp = new Date(a[key]).getTime() - new Date(b[key]).getTime()
     } else {
-      const aVal = String((a as Record<string, unknown>)[key] ?? '')
-      const bVal = String((b as Record<string, unknown>)[key] ?? '')
+      const aVal = String((a as unknown as Record<string, unknown>)[key] ?? '')
+      const bVal = String((b as unknown as Record<string, unknown>)[key] ?? '')
       cmp = aVal.localeCompare(bVal)
     }
 
@@ -373,10 +374,18 @@ function DetailSection({ title, children }: { title: string; children: React.Rea
 
 export default function Enforcement() {
   const { state } = useAppState()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({ status: '', actionType: '', vendorId: '' })
   const [sort, setSort] = useState<SortState>({ key: 'dueAt', direction: 'asc' })
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, filters])
 
   // Build dynamic vendor filter options
   const vendorFilterDefs = useMemo(() => {
@@ -385,8 +394,29 @@ export default function Enforcement() {
   }, [state.vendors])
 
   const columns = useMemo(
-    () => ActionColumns(state.vendors, state.cases),
-    [state.vendors, state.cases]
+    () => [
+      ...ActionColumns(state.vendors, state.cases),
+      {
+        key: 'actions' as const,
+        label: '',
+        sortable: false,
+        className: 'w-[40px]',
+        render: (a: EnforcementAction) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-7 text-text-secondary hover:text-foreground" onClick={(e) => e.stopPropagation()} aria-label="Actions">
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setSelectedActionId(a.id)}>View Details</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/investigation?case=${a.caseId}`)}>Investigate Case</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [state.vendors, state.cases, navigate, setSelectedActionId]
   )
 
   const filteredActions = useMemo(() => {
@@ -417,6 +447,11 @@ export default function Enforcement() {
 
     return result
   }, [state.enforcementActions, state.vendors, state.cases, search, filters, sort])
+
+  const paginatedActions = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredActions.slice(start, start + pageSize)
+  }, [filteredActions, currentPage, pageSize])
 
   const selectedAction = selectedActionId
     ? state.enforcementActions.find((a) => a.id === selectedActionId) ?? null
@@ -453,13 +488,20 @@ export default function Enforcement() {
         {/* Table */}
         <DataTable
           columns={columns}
-          data={filteredActions}
+          data={paginatedActions}
           sort={sort}
           onSortChange={setSort}
           selectedId={selectedActionId}
           onRowClick={(a) => setSelectedActionId(a.id === selectedActionId ? null : a.id)}
           getRowId={(a) => a.id}
           emptyMessage="No enforcement actions match your filters."
+          pagination={{
+            currentPage,
+            pageSize,
+            totalItems: filteredActions.length,
+            onPageChange: setCurrentPage,
+            onPageSizeChange: setPageSize,
+          }}
         />
       </div>
 

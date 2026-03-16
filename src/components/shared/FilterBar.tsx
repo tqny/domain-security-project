@@ -66,7 +66,7 @@ export default function FilterBar({
         </div>
       ))}
 
-      {/* Clear filters */}
+      {/* Clear all */}
       {hasActiveFilters && (
         <button
           onClick={() => filters.forEach((f) => onFilterChange(f.key, ''))}
@@ -75,6 +75,36 @@ export default function FilterBar({
           <X className="size-3" />
           Clear
         </button>
+      )}
+
+      {/* Active filter chips */}
+      {hasActiveFilters && (
+        <div className="w-full flex flex-wrap items-center gap-2 pt-1">
+          <span className="text-[10px] text-text-secondary sm:text-xs">Filters:</span>
+          {filters.map((filter) => {
+            const value = activeFilters[filter.key]
+            if (!value) return null
+            const option = filter.options.find((o) => o.value === value)
+            return (
+              <button
+                key={filter.key}
+                onClick={() => onFilterChange(filter.key, '')}
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-surface-alt px-2 py-0.5 text-xs font-medium text-text-secondary hover:text-foreground transition-colors cursor-pointer"
+              >
+                {option?.label || value}
+                <X className="size-2.5" aria-hidden="true" />
+              </button>
+            )
+          })}
+          {Object.values(activeFilters).filter((v) => v !== '').length > 1 && (
+            <button
+              onClick={() => filters.forEach((f) => onFilterChange(f.key, ''))}
+              className="text-xs text-destructive hover:underline"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
       )}
     </div>
   )

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppState } from '@/data/store'
 import type { Domain, DomainStatus } from '@/types'
@@ -7,7 +7,8 @@ import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
 import DetailPanel from '@/components/shared/DetailPanel'
 import StatusChip from '@/components/shared/StatusChip'
 import { Button } from '@/components/ui/button'
-import { Shield, ShieldOff, Lock, Unlock, Eye, EyeOff, AlertTriangle } from 'lucide-react'
+import { Shield, ShieldOff, Lock, Unlock, Eye, EyeOff, AlertTriangle, MoreHorizontal } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 // === Filter definitions ===
 
@@ -123,8 +124,8 @@ function sortDomains(domains: Domain[], sort: SortState): Domain[] {
       const bTime = b.lastFlaggedAt ? new Date(b.lastFlaggedAt).getTime() : 0
       cmp = aTime - bTime
     } else {
-      const aVal = String((a as Record<string, unknown>)[key] ?? '')
-      const bVal = String((b as Record<string, unknown>)[key] ?? '')
+      const aVal = String((a as unknown as Record<string, unknown>)[key] ?? '')
+      const bVal = String((b as unknown as Record<string, unknown>)[key] ?? '')
       cmp = aVal.localeCompare(bVal)
     }
 
@@ -296,10 +297,41 @@ function SecurityRow({ label, enabled }: { label: string; enabled: boolean }) {
 
 export default function Domains() {
   const { state } = useAppState()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({ status: '', registrar: '' })
   const [sort, setSort] = useState<SortState>({ key: 'status', direction: 'asc' })
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, filters])
+
+  const columnsWithActions = useMemo<Column<Domain>[]>(() => [
+    ...columns,
+    {
+      key: 'actions',
+      label: '',
+      sortable: false,
+      className: 'w-[40px]',
+      render: (d: Domain) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-7 text-text-secondary hover:text-foreground" onClick={(e) => e.stopPropagation()} aria-label="Actions">
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setSelectedDomainId(d.id)}>View Details</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { const linked = state.cases.filter(c => c.linkedDomainId === d.id); if (linked.length > 0) navigate(`/investigation?case=${linked[0].id}`) }}>View Linked Cases</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ], [navigate, setSelectedDomainId, state.cases])
 
   const filteredDomains = useMemo(() => {
     let result = state.domains
@@ -325,6 +357,11 @@ export default function Domains() {
 
     return result
   }, [state.domains, search, filters, sort])
+
+  const paginatedDomains = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredDomains.slice(start, start + pageSize)
+  }, [filteredDomains, currentPage, pageSize])
 
   const selectedDomain = selectedDomainId ? state.domains.find((d) => d.id === selectedDomainId) ?? null : null
 
@@ -356,14 +393,21 @@ export default function Domains() {
 
         {/* Table */}
         <DataTable
-          columns={columns}
-          data={filteredDomains}
+          columns={columnsWithActions}
+          data={paginatedDomains}
           sort={sort}
           onSortChange={setSort}
           selectedId={selectedDomainId}
           onRowClick={(d) => setSelectedDomainId(d.id === selectedDomainId ? null : d.id)}
           getRowId={(d) => d.id}
           emptyMessage="No domains match your filters."
+          pagination={{
+            currentPage,
+            pageSize,
+            totalItems: filteredDomains.length,
+            onPageChange: setCurrentPage,
+            onPageSizeChange: setPageSize,
+          }}
         />
       </div>
 

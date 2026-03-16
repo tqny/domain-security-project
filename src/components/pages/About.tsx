@@ -1,39 +1,13 @@
 import { useAppState } from '@/data/store'
 import { Button } from '@/components/ui/button'
-import { RotateCcw } from 'lucide-react'
-
-// === Section components ===
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-3">
-      <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-      {children}
-    </section>
-  )
-}
-
-function Prose({ children }: { children: React.ReactNode }) {
-  return <div className="text-sm text-text-secondary leading-relaxed space-y-3">{children}</div>
-}
-
-function List({ items }: { items: string[] }) {
-  return (
-    <ul className="text-sm text-text-secondary leading-relaxed space-y-1.5 list-none">
-      {items.map((item, i) => (
-        <li key={i} className="flex gap-2">
-          <span className="text-primary mt-0.5">•</span>
-          <span>{item}</span>
-        </li>
-      ))}
-    </ul>
-  )
-}
+import { RotateCcw, ShieldCheck, ChevronRight, LayoutDashboard } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 // === About Page ===
 
 export default function About() {
   const { resetToSeedData } = useAppState()
+  const navigate = useNavigate()
 
   function handleReset() {
     if (window.confirm('Reset all data to the original demo state? Any changes you made will be lost.')) {
@@ -42,115 +16,167 @@ export default function About() {
   }
 
   return (
-    <div className="max-w-3xl space-y-10">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          About This Project
-        </h1>
-        <p className="mt-2 text-base text-text-secondary leading-relaxed">
-          A portfolio-grade dashboard simulating the end-to-end workflow of a Brand Protection Program Manager — built to demonstrate how domain security operations actually work.
-        </p>
+    <div className="space-y-10">
+      {/* Hero */}
+      <div className="flex items-start gap-4">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+          <ShieldCheck className="size-6 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">About This Project</h1>
+          <p className="mt-0.5 text-sm text-text-secondary">A portfolio piece by Tony Mikityuk</p>
+          <p className="mt-3 text-sm text-text-secondary leading-relaxed max-w-3xl">
+            This dashboard simulates the daily operating environment for a Brand Protection Program Manager at a major financial institution. It demonstrates end-to-end workflow — from AI-powered threat detection and DNS analysis, through UDRP filings and vendor enforcement coordination, to executive-level reporting — all at the scale Bank of America operates.
+          </p>
+        </div>
       </div>
 
-      {/* Why this exists */}
-      <Section title="Why this exists">
-        <Prose>
-          <p>
-            Brand protection is a real operational discipline. Major companies monitor thousands of domains, investigate phishing campaigns, coordinate with enforcement vendors, and track takedown actions — all under SLA pressure.
-          </p>
-          <p>
-            This project simulates that full workflow on behalf of Bank of America. It's not a toy or a tutorial — it's a functional operations console with realistic data, cross-entity relationships, and the kind of information density that actual internal tools require.
-          </p>
-        </Prose>
-      </Section>
+      {/* Workflow strip */}
+      <div className="rounded-xl border border-border bg-surface p-6">
+        <h2 className="text-base font-semibold text-foreground mb-5">The Brand Protection Workflow</h2>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {[
+            { label: 'Detection', color: 'bg-info', description: 'ML models scan domains daily, flagging threats with predictive classification.' },
+            { label: 'Triage', color: 'bg-primary', description: 'Threats are scored, prioritized, and assigned. AI confidence determines auto-triage eligibility.' },
+            { label: 'Investigation', color: 'bg-[#9333ea]', description: 'Evidence collection: WHOIS, DNS records, SSL certs, screenshots, and AI classification.' },
+            { label: 'Enforcement', color: 'bg-warning', description: 'Registrar takedowns, platform reports, and paid search complaints via vendor partners.' },
+            { label: 'Resolution', color: 'bg-success', description: 'Threat neutralized, domain secured or transferred, executive report generated.' },
+          ].map((step, i) => (
+            <div key={step.label} className="flex items-start gap-3 md:flex-col md:items-start">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className={`size-2.5 rounded-full ${step.color}`} />
+                <span className="text-sm font-semibold text-foreground">{step.label}</span>
+                {i < 4 && <ChevronRight className="size-3.5 text-text-tertiary hidden md:block" />}
+              </div>
+              <p className="text-xs text-text-secondary leading-relaxed">{step.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* The workflow */}
-      <Section title="The workflow">
-        <Prose>
-          <p>Brand protection follows a clear lifecycle:</p>
-        </Prose>
-        <div className="rounded-xl border border-border bg-surface p-5 font-mono text-sm text-text-secondary">
-          <div className="space-y-1">
-            <div><span className="text-primary">Detect</span> — Threats surface via domain monitoring, CT logs, typosquat scans, customer reports</div>
-            <div><span className="text-primary">Triage</span> — New cases are assessed, prioritized, and assigned to investigators</div>
-            <div><span className="text-primary">Investigate</span> — Evidence is collected, AI analysis is reviewed, risk is scored</div>
-            <div><span className="text-primary">Enforce</span> — Takedown notices, registrar reports, and legal actions are coordinated with vendors</div>
-            <div><span className="text-primary">Resolve</span> — Actions are tracked through SLA windows to resolution or denial</div>
+      {/* What This Dashboard Demonstrates */}
+      <div className="rounded-xl border border-border bg-surface p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <span className="text-primary">◎</span>
+          <h2 className="text-base font-semibold text-foreground">What This Dashboard Demonstrates</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+          {[
+            { title: 'Domains & DNS', desc: 'Portfolio management of monitored domains, registrar operations, DNSSEC, registry locks, and AI-powered DNS threat detection.' },
+            { title: 'Case Management', desc: 'Full case lifecycle from detection through resolution, with evidence collection, AI analysis, and priority-based triage.' },
+            { title: 'Vendor Enforcement', desc: 'Coordination across 4 enforcement partners with SLA tracking, status controls, and performance metrics.' },
+            { title: 'AI Integration', desc: 'Predictive scoring, auto-classification, and AI-generated summaries reflect emerging AI-driven brand protection.' },
+            { title: 'Cross-Entity Linking', desc: 'Cases link to domains, domains link to enforcement actions — every entity is navigable across the workflow.' },
+            { title: 'Executive Reporting', desc: 'KPI dashboards, trend analysis, and channel breakdown — the kind of reporting leadership actually reviews.' },
+          ].map((item) => (
+            <div key={item.title}>
+              <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
+              <p className="mt-1 text-xs text-text-secondary leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* What to Look At + Architecture — side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* What to Look At */}
+        <div className="lg:col-span-3 rounded-xl border border-border bg-surface p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-primary">⊞</span>
+            <h2 className="text-base font-semibold text-foreground">What to Look At</h2>
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: 'Operations Overview', desc: 'Executive briefing, KPIs, AI insights, pipeline', path: '/' },
+              { label: 'Case Queue', desc: 'Filterable queue with channel + priority filters', path: '/queue' },
+              { label: 'Investigation', desc: 'Deep-dive: evidence timeline, AI analysis output', path: '/investigation' },
+              { label: 'Domain Portfolio', desc: 'DNS security controls, AI risk scores, registrar ops', path: '/domains' },
+              { label: 'Enforcement Tracker', desc: 'SLA tracking, vendor coordination, action pipeline', path: '/enforcement' },
+            ].map((item) => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className="flex w-full items-center justify-between rounded-lg border border-border bg-background p-4 hover:bg-surface-hover transition-colors text-left group"
+              >
+                <div>
+                  <div className="text-sm font-semibold text-foreground">{item.label}</div>
+                  <div className="text-xs text-text-secondary mt-0.5">{item.desc}</div>
+                </div>
+                <ChevronRight className="size-4 text-text-tertiary group-hover:text-foreground transition-colors shrink-0" />
+              </button>
+            ))}
           </div>
         </div>
-        <Prose>
-          <p>Each page in this dashboard represents a distinct stage of that lifecycle.</p>
-        </Prose>
-      </Section>
 
-      {/* What's included */}
-      <Section title="What's included in v1">
-        <List items={[
-          'Operations Overview — Key metrics, case pipeline, and threat distribution at a glance',
-          'Case Queue — Threat intake and triage table with search, filter, sort, and detail panels',
-          'Investigation — Deep-dive into individual cases with evidence timeline, AI analysis, and decision controls',
-          'Domain Portfolio — Monitored domains with security controls, risk flags, and registrar action logs',
-          'Enforcement Tracker — Vendor coordination console with SLA tracking, status controls, and workload summary',
-          'Interactive demo data — 10 cases, 4 domains, 4 vendors, 7 enforcement actions with full lifecycle states',
-          'Cross-page data relationships — Cases link to domains, enforcement actions link to cases and vendors',
-        ]} />
-      </Section>
+        {/* Architecture */}
+        <div className="lg:col-span-2 rounded-xl border border-border bg-surface p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-primary">⟨/⟩</span>
+            <h2 className="text-base font-semibold text-foreground">Architecture</h2>
+          </div>
 
-      {/* What's intentionally not included */}
-      <Section title="What's intentionally out of scope">
-        <List items={[
-          'No real data ingestion yet — seed data simulates what a real pipeline would produce',
-          'No authentication or multi-user support — single-user demo',
-          'No real AI/ML integration — AI summaries are realistic static content',
-          'No mobile-first design — desktop-first, responsive is a future pass',
-        ]} />
-        <Prose>
-          <p>
-            A future DATA phase will add real domain scanning via GitHub Actions — pulling from Certificate Transparency logs, DNS resolution, WHOIS, and typosquatting generation. The data model is designed so the UI requires zero changes when real data replaces seed data.
-          </p>
-        </Prose>
-      </Section>
+          <div className="mb-4">
+            <p className="text-xs text-text-secondary mb-2.5">Tech Stack</p>
+            <div className="flex flex-wrap gap-2">
+              {['React 19 + TypeScript', 'Vite', 'Tailwind CSS v4', 'shadcn/ui + shadcnblocks', 'Recharts', 'Geist font family'].map((t) => (
+                <span key={t} className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-text-secondary">{t}</span>
+              ))}
+            </div>
+          </div>
 
-      {/* Architecture */}
-      <Section title="How it's built">
-        <List items={[
-          'React 19 + TypeScript + Vite — modern, fast, type-safe',
-          'React Router v7 — simple client-side routing for 6 pages',
-          'React Context + localStorage — lightweight state with persistence across refreshes',
-          'Tailwind CSS v4 + shadcn/ui — design token system with semantic color mapping',
-          'Zero backend — all state is client-side, ready to swap in real data sources',
-          'Fully typed data model — Case, Domain, Vendor, EnforcementAction, Evidence entities',
-        ]} />
-      </Section>
+          <div>
+            <p className="text-xs text-text-secondary mb-2.5">Key Design Decisions</p>
+            <div className="space-y-2">
+              {[
+                'Centralized TypeScript data model with strict types for BofA threat taxonomy',
+                'React Context for cross-page state (selected case, vendor data, reset)',
+                'AI prediction model integrated at case and domain level',
+                'Torch Dark Gold theme with warm-tinted dark mode',
+                'Seed data shaped for real API interchangeability — zero structural changes needed',
+              ].map((d) => (
+                <div key={d} className="flex gap-2 text-xs text-text-secondary">
+                  <span className="text-success mt-0.5 shrink-0">◉</span>
+                  <span className="leading-relaxed">{d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* What this demonstrates */}
-      <Section title="What this demonstrates">
-        <Prose>
-          <p>This project is part of Tony Mikityuk's portfolio, built to show:</p>
-        </Prose>
-        <List items={[
-          'Deep understanding of brand protection and domain security operations',
-          'Ability to translate complex workflows into clear, usable product surfaces',
-          'Engineering judgment — clean component architecture, proper TypeScript, modular design',
-          'Design sensibility — consistent token system, professional visual language, data-forward layouts',
-          'AI-assisted development fluency — built with Claude Code as an orchestration partner',
-        ]} />
-      </Section>
+      {/* Scope Decisions */}
+      <div className="rounded-xl border border-border bg-surface p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <span className="text-primary">◎</span>
+          <h2 className="text-base font-semibold text-foreground">Scope Decisions</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+          {[
+            { title: 'BofA branding, realistic data', desc: 'Demonstrates domain knowledge specific to how a Program Manager at a major bank would operate at global scale.' },
+            { title: 'DNS/domain-heavy focus', desc: "Matches the JD's primary responsibility: domain management, registrar operations, and DNS-based threat solutions." },
+            { title: 'Seed data, no backend', desc: 'Data model is shaped for real API interchangeability. Swapping seed data for live endpoints requires zero structural changes.' },
+            { title: 'AI-prominent UX', desc: "AI scoring, auto-classification, and model performance metrics reflect the emphasis on AI-driven brand protection." },
+            { title: 'Executive briefing strip', desc: "The dashboard calls out 'executive-level communications and reports' — the Overview page demonstrates this thinking." },
+          ].map((item) => (
+            <div key={item.title}>
+              <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
+              <p className="mt-1 text-xs text-text-secondary leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* How to evaluate */}
-      <Section title="How to explore">
-        <Prose>
-          <p>Start at the Dashboard for the big picture, then:</p>
-        </Prose>
-        <List items={[
-          'Open Case Queue and click any case to see the detail panel — try changing status or adding a note',
-          'Switch to Investigation and select a case to see the full evidence timeline and AI analysis',
-          'Check Domain Portfolio — click a domain to see security controls, risk flags, and linked cases',
-          'Visit Enforcement Tracker — notice the SLA indicators and vendor workload cards',
-          'Use the Reset Demo button below to restore original data after experimenting',
-        ]} />
-      </Section>
+      {/* CTA */}
+      <div className="rounded-xl border border-primary/20 bg-accent-muted p-8 text-center">
+        <h2 className="text-lg font-semibold text-foreground">Ready to explore?</h2>
+        <p className="mt-2 text-sm text-text-secondary max-w-md mx-auto">
+          Start with the Operations Overview, click into a case from the Queue, then follow it through Investigation and Enforcement.
+        </p>
+        <Button className="mt-5 gap-2" onClick={() => navigate('/')}>
+          <LayoutDashboard className="size-4" />
+          Go to Overview
+        </Button>
+      </div>
 
       {/* Reset Demo */}
       <div className="rounded-xl border border-border bg-surface p-6">

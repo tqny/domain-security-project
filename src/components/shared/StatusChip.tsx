@@ -1,5 +1,23 @@
 import { cn } from '@/lib/utils'
 import type { CaseStatus, Priority, DomainStatus, ActionStatus } from '@/types'
+import {
+  Plus,
+  CheckCircle2,
+  Search,
+  Gavel,
+  XCircle,
+  AlertTriangle,
+  ArrowUpRight,
+  Minus,
+  ArrowDownRight,
+  Flame,
+  Eye,
+  Ban,
+  Clock,
+  Send,
+  Loader,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 const statusStyles: Record<CaseStatus, string> = {
   New: 'bg-accent-muted text-primary',
@@ -31,11 +49,41 @@ const actionStatusStyles: Record<ActionStatus, string> = {
   Denied: 'bg-danger-muted text-destructive',
 }
 
+const statusIcons: Record<string, Record<string, LucideIcon>> = {
+  status: {
+    New: Plus,
+    Triaged: CheckCircle2,
+    Investigating: Search,
+    Enforcement: Gavel,
+    Closed: XCircle,
+  },
+  priority: {
+    Critical: AlertTriangle,
+    High: ArrowUpRight,
+    Medium: Minus,
+    Low: ArrowDownRight,
+  },
+  'domain-status': {
+    Active: Flame,
+    Monitoring: Eye,
+    Incident: AlertTriangle,
+    Suspended: Ban,
+  },
+  'action-status': {
+    Queued: Clock,
+    Sent: Send,
+    'In Progress': Loader,
+    Resolved: CheckCircle2,
+    Denied: XCircle,
+  },
+}
+
 type ChipType = 'status' | 'priority' | 'domain-status' | 'action-status'
 
 interface StatusChipProps {
   value: CaseStatus | Priority | DomainStatus | ActionStatus
   type: ChipType
+  showIcon?: boolean
   className?: string
 }
 
@@ -46,9 +94,10 @@ const styleMap: Record<ChipType, Record<string, string>> = {
   'action-status': actionStatusStyles,
 }
 
-export default function StatusChip({ value, type, className }: StatusChipProps) {
+export default function StatusChip({ value, type, showIcon = true, className }: StatusChipProps) {
   const styles = styleMap[type]
   const style = styles[value as keyof typeof styles]
+  const Icon = showIcon ? statusIcons[type]?.[value] : undefined
 
   return (
     <span
@@ -58,6 +107,7 @@ export default function StatusChip({ value, type, className }: StatusChipProps) 
         className
       )}
     >
+      {Icon && <Icon className="size-3" />}
       <span className="size-1.5 rounded-full bg-current" />
       {value}
     </span>
