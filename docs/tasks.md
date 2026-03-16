@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-BUILD — Phase B (Pages)
+BUILD — Phase D (Ship)
 
 ## Lifecycle
 
@@ -26,7 +26,7 @@ BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
 - [x] Draft design.md Pass 1
 - [x] Draft README.md
 - [ ] Run `/plan-eng-review` — lock in architecture with diagrams and edge cases
-- [ ] Initialize GitHub remote
+- [x] Initialize GitHub remote
 
 ---
 
@@ -34,10 +34,10 @@ BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
 
 - [x] **A1: Project scaffold** — Vite + React + TypeScript + React Router v7 + Tailwind v4 + shadcn/ui. Dev server verified.
 - [x] **A2: TypeScript data model** — All 5 entity types + enums + state shape in `src/types/index.ts`.
-- [x] **A3: Seed data** — ~10 cases, ~4 domains, ~4 vendors, ~6 actions, evidence in `src/data/seed.ts`.
+- [x] **A3: Seed data** — ~10 cases, ~4 domains, ~4 vendors, ~7 actions, evidence in `src/data/seed.ts`.
 - [x] **A4: State management** — React context + localStorage persistence + reset function in `src/data/store.tsx`.
-- [x] **A5: Design system foundation** — Warm Contrast Analytics tokens mapped into `src/styles/global.css`. Amber accent, dark shell on warm canvas. Geist font. Design criteria files at `~/Desktop/domain design criteria/`.
-- [x] **A6: App shell** — Router (6 routes), nav rail with workflow labels + count badges, framed layout (dark rounded shell on amber canvas). All routes render placeholder pages.
+- [x] **A5: Design system foundation** — Torch Dark Gold tokens mapped into `src/styles/global.css`. Neutral grays, amber accent, Geist font. Design criteria files at `~/Desktop/domain new/`.
+- [x] **A6: App shell** — Router (6 routes), sidebar with icons/sections/user block + topbar with breadcrumb/search. CSS Grid layout.
 
 ## Build Tasks — Phase B: Pages (build order)
 
@@ -45,24 +45,33 @@ Each page: implement primary surface + support element + interactions. Verify be
 
 B1 establishes shared component patterns (table, detail panel, filter bar, status chips) that B2–B5 reuse.
 
-- [x] **B1: Case Queue** — Table with search/filter/sort/pagination. Detail panel with status controls, owner, notes. Done: can search, filter, sort cases. Selecting a case shows detail. Can update status and add notes.
-- [x] **B2: Investigation** — Case selector, signal chart, evidence list, AI summary, decision module, timeline. Done: selecting a case shows full investigation view with chart + context + actions.
-- [ ] **B3: Domain Portfolio** — Domain table with search/filter. Detail panel with security controls, risk flags, linked cases, registrar log. Done: can browse domains, view detail, add log entries.
-- [ ] **B4: Enforcement Tracker** — Action table with vendor/status filters. Detail panel with SLA tracking, status controls, notes. Vendor workload summary. Done: can filter actions, update status, see SLA breach indicators.
-- [ ] **B5: Operations Overview** — Composite trend chart, threat distribution, program health summary. Done: overview renders aggregate data from context. Read-only — no mutations.
+- [x] **B1: Case Queue** — Table with search/filter/sort. Detail panel with status controls, owner, notes. Linked domain navigates to Domains page.
+- [x] **B2: Investigation** — Case selector (supports `?case=` deep linking), signal timeline, evidence list, AI summary, decision module, risk assessment bar.
+- [x] **B3: Domain Portfolio** — Domain table with search/filter/sort. Detail panel with security controls (DNSSEC/registry lock/WHOIS privacy icons), risk flags, linked cases (clickable → Investigation), registrar action log with add-entry form.
+- [x] **B4: Enforcement Tracker** — Action table with vendor/status/type filters. Detail panel with SLA tracking (progress bar, time remaining, breach indicators), status controls, notes. Vendor workload summary (4-card grid). Linked case clickable → Investigation.
+- [x] **B5: Operations Overview** — 4 stat cards (open cases, active threats, domains monitored, pending actions) with trend badges. Case pipeline horizontal bar chart (CSS-based). Threat type donut chart (CSS conic-gradient). Recent case activity list. Read-only — no mutations.
 
 ## Build Tasks — Phase C: Portfolio Surface
 
-- [ ] **C1: About This Project page** — Content: positioning, workflow explanation, architecture, scope decisions, how to evaluate. Done: page renders with structured content, accessible from nav.
-- [ ] **C2: Cross-page breadcrumbs** — Breadcrumb trail tracks navigation. Linked entities navigate to relevant pages. Done: clicking a case in Domains navigates to Investigation with that case selected.
-- [ ] **C3: Nav rail badges** — Live count indicators per workflow stage. Done: badges update reactively as state changes.
-- [ ] **C4: Reset Demo** — Button in About page and/or nav footer. Resets state to seed data. Done: click resets, confirmation prompt prevents accidents.
+- [x] **C1: About This Project page** — Full reviewer-facing content: positioning, workflow explanation (detect → triage → investigate → enforce → resolve), architecture overview, scope decisions, how to explore. Reset Demo button with confirmation dialog. Portfolio footer link.
+- [x] **C2: Cross-page navigation** — TopBar breadcrumb (Home / page name). Linked cases in Domains and Enforcement detail panels navigate to Investigation via `?case=` param. Linked domain in Queue detail panel navigates to Domains.
+- [x] **C3: Nav rail badges** — Live count indicators: open cases, investigating, domains, active enforcement actions. Badges update reactively from context state. Wired during sidebar rebuild.
+- [x] **C4: Reset Demo** — Button on About page. Calls `resetToSeedData()` with `window.confirm` guard. Restores localStorage to seed state.
 
 ## Build Tasks — Phase D: Ship
 
 - [ ] **D1: GitHub Pages deployment** — GitHub Actions workflow or gh-pages. Done: live at GitHub Pages URL.
 - [ ] **D2: Review pass** — Run `/review` and `/browse`. Fix any critical issues.
 - [ ] **D3: README** — Finalize README.md for repo visitors. Done: clear, concise, links to live demo.
+
+---
+
+## Significant Mid-Build Changes
+
+- **Design system refresh** — Replaced "Warm Contrast Analytics" (warm-tinted oklch grays, framed amber shell) with "Torch Dark Gold" (neutral hex grays, flat sidebar+topbar grid). New criteria files at `~/Desktop/domain new/`. All tokens rewritten in `global.css`.
+- **Brand target change** — Replaced fictional "Acme Corp" with Bank of America in all seed data. Enables real domain scanning in future DATA phase (crt.sh, DNS, WHOIS against BofA typosquats).
+- **Layout restructure** — Removed amber canvas frame. Now full-viewport CSS Grid: 260px sidebar + 64px topbar + scrollable main. Added TopBar component, evolved NavRail into full sidebar with icons, sections, logo, user block.
+- **Charting** — No external library. Overview uses CSS-based charts (horizontal bars via width%, donut via conic-gradient).
 
 ---
 
@@ -75,7 +84,7 @@ _To be planned in detail when BUILD is complete. High-level:_
 - [ ] Certificate Transparency log ingestion (crt.sh)
 - [ ] DNS resolution checks
 - [ ] WHOIS data pulls
-- [ ] Typosquatting domain generation
+- [ ] Typosquatting domain generation (bankofamerica.com, bofa.com, merrilledge.com variants)
 - [ ] Output JSON data files to repo
 - [ ] Swap app data source from seed.ts to pipeline JSON
 

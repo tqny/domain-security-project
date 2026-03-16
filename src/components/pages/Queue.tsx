@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppState } from '@/data/store'
 import type { Case, CaseStatus, Priority } from '@/types'
 import DataTable, { type Column, type SortState } from '@/components/shared/DataTable'
@@ -121,6 +122,7 @@ function sortCases(cases: Case[], sort: SortState): Case[] {
 
 function CaseDetail({ caseData }: { caseData: Case }) {
   const { updateCaseStatus, setCaseOwner, addCaseNote, escalateCasePriority } = useAppState()
+  const navigate = useNavigate()
   const [noteText, setNoteText] = useState('')
 
   function handleAddNote() {
@@ -155,7 +157,14 @@ function CaseDetail({ caseData }: { caseData: Case }) {
           {new Date(caseData.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
         </DetailRow>
         {caseData.linkedDomainId && (
-          <DetailRow label="Linked Domain" value={caseData.linkedDomainId} />
+          <DetailRow label="Linked Domain">
+            <button
+              onClick={() => navigate('/domains')}
+              className="text-primary hover:underline text-sm cursor-pointer"
+            >
+              {caseData.linkedDomainId}
+            </button>
+          </DetailRow>
         )}
       </div>
 
@@ -168,7 +177,7 @@ function CaseDetail({ caseData }: { caseData: Case }) {
       <DetailSection title="AI Analysis">
         <p className="text-sm text-text-secondary leading-relaxed">{caseData.aiSummary}</p>
         <p className="mt-2 text-xs text-muted-foreground">
-          <span className="font-medium text-primary/80">Suggested:</span> {caseData.aiSuggestedAction}
+          <span className="font-medium text-primary">Suggested:</span> {caseData.aiSuggestedAction}
         </p>
       </DetailSection>
 
@@ -267,7 +276,7 @@ function DetailRow({ label, value, children }: { label: string; value?: string; 
 
 function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-t border-border/50 pt-5">
+    <div className="border-t border-border pt-5">
       <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</h3>
       {children}
     </div>

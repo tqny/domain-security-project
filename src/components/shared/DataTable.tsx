@@ -46,16 +46,16 @@ export default function DataTable<T>({
   }
 
   return (
-    <div className={cn('overflow-x-auto rounded-xl', className)}>
+    <div className={cn('overflow-x-auto rounded-xl border border-border', className)}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border/50 bg-surface-alt/50">
+          <tr className="border-b border-border bg-surface-alt">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground',
-                  col.sortable && 'cursor-pointer select-none hover:text-foreground transition-colors duration-[120ms]',
+                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-widest text-text-secondary',
+                  col.sortable && 'cursor-pointer select-none hover:text-foreground transition-colors duration-[var(--duration-fast)]',
                   col.className
                 )}
                 onClick={col.sortable ? () => handleSort(col.key) : undefined}
@@ -90,11 +90,11 @@ export default function DataTable<T>({
                   key={id}
                   onClick={() => onRowClick?.(item)}
                   className={cn(
-                    'border-b border-border/50 transition-colors duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                    'border-b border-border transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]',
                     onRowClick && 'cursor-pointer',
                     selectedId === id
-                      ? 'bg-primary/[0.06] border-l-2 border-l-primary'
-                      : 'hover:bg-surface-elevated/40'
+                      ? 'bg-accent-muted border-l-[3px] border-l-primary'
+                      : 'hover:bg-surface-hover'
                   )}
                 >
                   {columns.map((col) => (

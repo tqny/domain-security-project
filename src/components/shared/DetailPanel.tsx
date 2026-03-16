@@ -23,12 +23,13 @@ export default function DetailPanel({
   return (
     <aside
       className={cn(
-        'fixed top-5 right-5 z-40 h-[calc(100vh-2.5rem)] w-[420px] rounded-r-2xl bg-surface shadow-floating flex flex-col',
+        'fixed top-0 right-0 h-screen h-dvh w-[420px] bg-surface border-l border-border shadow-floating flex flex-col',
         className
       )}
+      style={{ zIndex: 'var(--z-overlay)' }}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 border-b border-border/40 px-5 py-4">
+      <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-foreground truncate">{title}</h2>
           {subtitle && (
@@ -37,7 +38,7 @@ export default function DetailPanel({
         </div>
         <button
           onClick={onClose}
-          className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-surface-elevated hover:text-foreground transition-colors duration-[120ms]"
+          className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors duration-[var(--duration-fast)]"
         >
           <X className="size-4" />
         </button>

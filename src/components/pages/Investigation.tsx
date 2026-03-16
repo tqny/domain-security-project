@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAppState } from '@/data/store'
 import type { Case, Evidence, EnforcementAction } from '@/types'
 import StatusChip from '@/components/shared/StatusChip'
@@ -143,8 +144,14 @@ function formatDateTime(iso: string) {
 
 export default function Investigation() {
   const { state, updateCaseStatus } = useAppState()
+  const [searchParams] = useSearchParams()
+  const caseFromUrl = searchParams.get('case')
+
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(
-    state.cases.find((c) => c.status === 'Investigating')?.id ?? state.cases[0]?.id ?? null
+    (caseFromUrl && state.cases.find((c) => c.id === caseFromUrl) ? caseFromUrl : null)
+    ?? state.cases.find((c) => c.status === 'Investigating')?.id
+    ?? state.cases[0]?.id
+    ?? null
   )
 
   const selectedCase = selectedCaseId
@@ -246,7 +253,7 @@ export default function Investigation() {
                 <div key={event.id} className="relative flex gap-4 pb-6 last:pb-0">
                   {/* Connector line */}
                   {i < timeline.length - 1 && (
-                    <div className="absolute left-[7px] top-5 bottom-0 w-px bg-border-strong/40" />
+                    <div className="absolute left-[7px] top-5 bottom-0 w-px bg-border-strong" />
                   )}
                   {/* Dot */}
                   <div className={`relative z-10 mt-1 size-[15px] shrink-0 rounded-full border-2 border-background ${dotColors[event.type]}`} />
@@ -279,7 +286,7 @@ export default function Investigation() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xs font-medium text-primary/80">{evidenceLabels[ev.type]}</span>
+                        <span className="text-xs font-medium text-primary">{evidenceLabels[ev.type]}</span>
                         <span className="text-xs text-muted-foreground">{formatDate(ev.capturedAt)}</span>
                       </div>
                       <p className="mt-1 text-sm text-text-secondary leading-relaxed">{ev.value}</p>
@@ -301,7 +308,7 @@ export default function Investigation() {
             </h3>
             <p className="text-sm text-text-secondary leading-relaxed">{selectedCase.aiSummary}</p>
             <div className="mt-4 rounded-xl bg-background p-3">
-              <span className="text-xs font-medium text-primary/80">Suggested Action</span>
+              <span className="text-xs font-medium text-primary">Suggested Action</span>
               <p className="mt-1 text-sm text-text-secondary leading-relaxed">{selectedCase.aiSuggestedAction}</p>
             </div>
           </section>
@@ -369,7 +376,7 @@ export default function Investigation() {
                 </div>
                 <div className="h-1.5 rounded-full bg-background overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-[280ms] ${selectedCase.riskScore >= 80 ? 'bg-destructive' : selectedCase.riskScore >= 60 ? 'bg-warning' : 'bg-primary'}`}
+                    className={`h-full rounded-full transition-all duration-[var(--duration-slow)] ${selectedCase.riskScore >= 80 ? 'bg-destructive' : selectedCase.riskScore >= 60 ? 'bg-warning' : 'bg-primary'}`}
                     style={{ width: `${selectedCase.riskScore}%` }}
                   />
                 </div>

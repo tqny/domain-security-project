@@ -1,15 +1,26 @@
 import { Outlet } from 'react-router-dom'
 import NavRail from './NavRail'
+import TopBar from './TopBar'
 
 export default function Layout() {
   return (
-    <div className="flex min-h-screen bg-ambient p-4 md:p-5">
-      <div className="flex flex-1 overflow-hidden rounded-2xl" style={{ boxShadow: 'var(--shadow-floating)' }}>
-        <NavRail />
-        <main className="flex-1 overflow-y-auto bg-background px-10 py-8">
-          <Outlet />
-        </main>
-      </div>
+    <div
+      className="grid min-h-screen min-h-dvh"
+      style={{
+        gridTemplateColumns: 'var(--sidebar-width) 1fr',
+        gridTemplateRows: 'var(--topbar-height) 1fr',
+        gridTemplateAreas: `"sidebar topbar" "sidebar main"`,
+      }}
+    >
+      <NavRail />
+      <TopBar />
+      <main
+        className="overflow-y-auto bg-background p-8"
+        style={{ gridArea: 'main' }}
+        id="main-content"
+      >
+        <Outlet />
+      </main>
     </div>
   )
 }

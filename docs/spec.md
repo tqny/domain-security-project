@@ -6,6 +6,8 @@
 
 A portfolio-grade web dashboard that simulates the end-to-end workflow of a Brand Protection Program Manager — from threat intake and triage, through investigation and domain management, to vendor enforcement and operational reporting.
 
+The product operates on behalf of **Bank of America**, using realistic threat scenarios (phishing domains, impersonation ads, fake mobile banking apps, credential harvesting sites) that reflect the actual brand protection challenges a major financial institution faces. This brand target enables a future DATA phase where real domain scanning replaces seed data.
+
 The product should do two things well:
 
 1. **Teach the workflow** clearly enough that a reviewer can understand how threats are identified, triaged, investigated, enforced, and reported.
@@ -32,18 +34,19 @@ For portfolio context: the real audience is a hiring manager evaluating a PM/CS 
 
 Each page: one primary surface, one supporting element, focused interactions.
 
-1. **Operations Overview** — Operational health at a glance. Key metrics, trend chart, program state summary. One composite chart + one support strip.
+1. **Operations Overview** — Operational health at a glance. Stat cards with trend badges, case pipeline chart, threat type donut, recent activity.
 2. **Case Queue** — Threat intake and triage table. Search, filter, sort. Selected case detail panel with metadata, status controls, notes. The daily driver.
-3. **Investigation** — Case deep-dive. Signal timeline, evidence links, AI-generated summary, enforcement readiness. Chart-first layout with supporting context modules.
-4. **Domain Portfolio** — Monitored domains table. Security controls indicators, risk flags, registrar action log. Detail panel on selection.
-5. **Enforcement Tracker** — Vendor coordination console. Action pipeline table with SLA tracking, status updates, coordination notes. Vendor workload summary.
-6. **About This Project** — Dedicated reviewer-facing page. Positioning, workflow explanation, architecture overview, scope decisions, how to evaluate.
+3. **Investigation** — Case deep-dive. Signal timeline, evidence links, AI-generated summary, enforcement readiness. Supports deep linking via `?case=` param.
+4. **Domain Portfolio** — Monitored domains table. Security controls indicators (DNSSEC, registry lock, WHOIS privacy), risk flags, registrar action log. Linked cases navigate to Investigation.
+5. **Enforcement Tracker** — Vendor coordination console. Action pipeline table with SLA tracking, status updates, coordination notes. Vendor workload summary cards.
+6. **About This Project** — Dedicated reviewer-facing page. Positioning, workflow explanation, architecture overview, scope decisions, how to evaluate. Reset Demo button.
 
 ### MVP Delight Touches
 
 - **Reset Demo** button — lets reviewer reset seed data after exploring
-- **Cross-page breadcrumbs** — e.g., "Queue > Case #BG-0042 > Investigation"
-- **Nav rail count badges** — live counts per workflow stage (e.g., Queue shows "7")
+- **Cross-page entity linking** — clicking linked cases/domains navigates with context
+- **Nav sidebar badges** — live counts per workflow stage
+- **TopBar breadcrumb** — page-level navigation context
 
 ## Non-Goals
 
@@ -52,8 +55,7 @@ Each page: one primary surface, one supporting element, focused interactions.
 - No real AI/ML model integration (AI summaries are static mock content)
 - No mobile-first design (desktop-first; responsive is POLISH phase)
 - No campaign clustering, executive PDF reporting, or model monitoring
-- No literal heatmap (tables outperform when data doesn't support 2-axis)
-- No dark/light theme toggle (one polished theme)
+- No dark/light theme toggle (one polished dark theme)
 
 ## Assumptions and Constraints
 
@@ -109,11 +111,11 @@ Action: Queued → Sent → In Progress → Resolved / Denied
 
 ### Seed Data
 
-- ~10 cases with varied channels, threat types, priorities, and statuses
-- ~4 domains with different risk profiles and security configurations
-- ~4 vendors with different SLA windows and regions
-- ~6+ enforcement actions at various lifecycle stages
-- Evidence records linked to cases
+- 10 cases targeting Bank of America (phishing, impersonation, scam, counterfeit, policy abuse)
+- 4 domains (bankofamerica-secure.com, boa-customerservice.net, bankofamerica-rewards.com, bofa-login-verify.org)
+- 4 vendors with different SLA windows and regions
+- 7 enforcement actions at various lifecycle stages
+- 17 evidence records linked to cases
 
 ### Persistence
 
@@ -125,4 +127,4 @@ None for MVP. Single-user demo.
 
 ## Post-MVP: DATA Phase
 
-After BUILD, a dedicated DATA phase adds real data ingestion via GitHub Actions cron pipeline pulling from public domain security sources (crt.sh, DNS, WHOIS, typosquatting generation). Same TypeScript interfaces — UI requires zero changes.
+After BUILD, a dedicated DATA phase adds real data ingestion via GitHub Actions cron pipeline pulling from public domain security sources (crt.sh, DNS, WHOIS, typosquatting generation) targeting Bank of America brand surface. Same TypeScript interfaces — UI requires zero changes.
