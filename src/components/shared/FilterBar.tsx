@@ -37,13 +37,13 @@ export default function FilterBar({
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       {/* Search */}
       <div className="relative flex-1 min-w-[200px] max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-text-tertiary" />
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="h-8 w-full rounded-lg border border-border bg-surface pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          className="h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-text-tertiary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors duration-[var(--duration-fast)]"
         />
       </div>
 
@@ -53,7 +53,7 @@ export default function FilterBar({
           <select
             value={activeFilters[filter.key] || ''}
             onChange={(e) => onFilterChange(filter.key, e.target.value)}
-            className="h-8 rounded-lg border border-border bg-surface pl-3 pr-8 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring appearance-none cursor-pointer"
+            className="h-8 rounded-lg border border-border bg-surface pl-3 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer transition-colors duration-[var(--duration-fast)]"
           >
             <option value="">{filter.label}</option>
             {filter.options.map((opt) => (
@@ -62,7 +62,7 @@ export default function FilterBar({
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-text-tertiary" />
         </div>
       ))}
 
@@ -70,7 +70,7 @@ export default function FilterBar({
       {hasActiveFilters && (
         <button
           onClick={() => filters.forEach((f) => onFilterChange(f.key, ''))}
-          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors duration-[120ms]"
+          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-text-secondary hover:text-foreground transition-colors duration-[var(--duration-fast)]"
         >
           <X className="size-3" />
           Clear

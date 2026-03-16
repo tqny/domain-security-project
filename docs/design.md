@@ -1,7 +1,7 @@
 # Design — Brand Protection Control Center
 
-> Style: **Warm Contrast Analytics**
-> Source files: `~/Desktop/domain design criteria/design-criteria.jsonc` and `developer-brief.md`
+> Style: **Torch Dark Gold**
+> Source files: `~/Desktop/domain new/design-criteria.jsonc` and `developer-brief.md`
 > Implemented in: `src/styles/global.css`
 
 ---
@@ -10,46 +10,25 @@
 
 ### Layout Pattern
 
-Framed dark shell on warm amber canvas. The app lives inside a near-black rounded container (`rounded-2xl`) with visible amber (`#F2C35C`) margins on all sides. Inside the shell: left nav rail (w-56, bg-card) + main content area (bg-background).
+Full-viewport CSS Grid. Sidebar (260px) + TopBar (64px) + scrollable main content area. No framing wrapper — the app fills the viewport edge-to-edge on a near-black background (`#0D0D0D`).
 
-Desktop-first. Content max-width not constrained within the shell — the shell itself is the frame.
+Desktop-first. Sidebar is sticky full-height. TopBar is sticky top.
 
 ### Density and Tone
 
-Medium-low density. Generous padding (px-10 py-8 on content area, px-5 py-6 on nav header). Sections breathe. The feel is "polished internal tool" — confident, calm, data-forward. Not sci-fi, not playful.
+Medium density. Data-rich sections use tight spacing; overview sections use generous whitespace. The feel is "premium analytics tool" — confident, warm, data-forward. Not cold/clinical, not playful.
 
-Headlines are large, left-aligned, tightly tracked. Amber accent is rationed: CTAs, chart emphasis, active nav state, tiny metadata labels. If everything is accented, nothing is accented.
+Headlines are large, left-aligned, tightly tracked. Amber accent is rationed: primary CTAs, active nav state, chart highlights, key data points. Text hierarchy uses opacity/weight rather than color changes.
 
 ### Design References
 
 - **Torch analytics product** (marketing pages) — the primary visual reference
-- Dark shell + warm amber canvas composition
-- 2x2 chart tile clusters with simplified bar/ring/line charts
-- Feature cards: dark, rounded, icon + headline + restrained copy
-- Split hero pattern (content left, proof right)
-- Pricing cards with featured-tier emphasis
-- FAQ accordion rows
-
-### Reference Interpretation
-
-**What we use from the references:**
-- Shell-on-canvas framing pattern (adapted for app layout vs marketing page)
-- Color palette: near-black surfaces, warm off-white text, amber accent family
-- Typography rhythm: large tight-tracked headlines, muted supporting copy
-- Card language: dark cards with soft borders, generous radius
-- Chart styling: amber data series, warm neutral secondaries
-- Interaction patterns: subtle hover shifts, visible focus rings, no glow effects
-
-**What we adapt:**
-- Marketing hero/pricing/testimonial patterns → dashboard tables, detail panels, metric cards
-- Top nav → left nav rail (architectural decision from spec)
-- Split hero → overview page metrics layout
-- CTA buttons → action buttons within workflow context
-
-**What we ignore:**
-- Marketing-specific modules (pricing tiers, testimonial rows, newsletter forms)
-- Photography/texture as decorative elements
-- Logo strips and trust badges
+- Deep charcoal surfaces with single amber/gold accent
+- Sidebar + topbar grid layout
+- Stat cards with trend badges
+- Chart panels (bar + donut)
+- Data tables with hover rows and sortable headers
+- Feature cards with icon + title + description
 
 ### Token System
 
@@ -58,128 +37,137 @@ All tokens centralized in `src/styles/global.css` as CSS custom properties mappe
 **Palette:**
 | Token | Value | Role |
 |-------|-------|------|
-| `--ambient` | `#F2C35C` | Warm canvas behind shell |
-| `--background` | `#101211` | App background / shell bg |
-| `--card` / `--surface` | `#181A19` | Primary surface (nav rail, cards) |
-| `--surface-alt` | `#202322` | Alternate surface |
-| `--surface-elevated` | `#262927` | Elevated surface (badges, hover) |
-| `--border` | `rgba(255,255,255,0.06)` | Soft borders |
-| `--border-strong` | `#2D302E` | Explicit borders |
-| `--foreground` | `#F6F2E8` | Primary text |
-| `--text-secondary` | `#ABA79D` | Secondary text |
-| `--muted-foreground` | `#7F7B73` | Muted text |
-| `--primary` | `#F7C554` | Amber accent |
-| `--destructive` | `#C56E63` | Danger/error |
-| `--success` | `#83B889` | Success |
-| `--warning` | `#D89E3C` | Warning |
+| `--background` | `#0D0D0D` | Main app background |
+| `--surface` / `--card` | `#161616` | Sidebar, cards, panels |
+| `--surface-alt` | `#1E1E1E` | Table headers, alternate surfaces |
+| `--surface-hover` | `#252525` | Hover state on surfaces |
+| `--border` | `#2A2A2A` | Default borders (solid) |
+| `--border-emphasis` | `#3A3A3A` | Stronger borders, focus states |
+| `--foreground` | `#F5F5F5` | Primary text |
+| `--text-secondary` | `#A0A0A0` | Secondary text |
+| `--text-tertiary` | `#666666` | Muted / disabled text |
+| `--primary` | `#E8A838` | Amber accent |
+| `--accent-hover` | `#D4952F` | Accent hover state |
+| `--accent-muted` | `rgba(232,168,56,0.15)` | Accent tint backgrounds |
+| `--destructive` | `#E5484D` | Danger / error |
+| `--success` | `#34C759` | Success / healthy |
+| `--warning` | `#E8A838` | Warning (same as accent) |
+| `--info` | `#5B9BD5` | Informational / blue |
 
-**Chart series:** Amber family — `#F7C554`, `#F9D67A`, `#F5EBD1`, `#6F6A61`, `#ABA79D`
+**Semantic muted variants:** `--danger-muted`, `--success-muted`, `--warning-muted`, `--info-muted` — all at 15% opacity for badge/chip backgrounds.
 
-**Typography:** Geist Variable → ui-sans-serif → system-ui fallback. Tight negative tracking on headlines (-0.02em to -0.055em). Weights: 400/500/600/700.
+**Chart series:** `#E8A838` (gold), `#F5F5F5` (white), `#5B9BD5` (blue), `#34C759` (green), `#A0A0A0` (gray)
 
-**Radius:** sm=0.625rem, md=0.875rem (base), lg=1.25rem, xl=1.75rem. Shell uses rounded-2xl.
+**Typography:** Geist Variable → ui-sans-serif → system-ui fallback. Tight tracking on headlines (-0.02em). Weights: 400/500/600/700.
 
-**Shadows:** Warm-tinted, large offsets: subtle (12px), medium (20px), floating (32px).
+**Radius:** sm=4px, md=8px, lg=12px, xl=16px, 2xl=20px, pill=9999px.
 
-**Motion:** Fast=120ms, base=180ms, slow=280ms. Easing: cubic-bezier(0.22, 1, 0.36, 1). Restrained — opacity + translateY preferred over large travel.
+**Shadows:** Conventional black, no warm tint. Subtle (1px), medium (12px), floating (32px), glow (amber 15% for featured elements).
+
+### Motion System
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--duration-instant` | 100ms | Micro-interactions |
+| `--duration-fast` | 150ms | Hover, focus, close buttons |
+| `--duration-base` | 250ms | Row hover, nav transitions |
+| `--duration-slow` | 400ms | Panel transitions, chart animations |
+| `--duration-entrance` | 500ms | Page-level entrance animations |
+| `--ease-standard` | cubic-bezier(0.4, 0, 0.2, 1) | All interactive transitions |
+| `--ease-out` | cubic-bezier(0, 0, 0.2, 1) | Entrance animations |
+| `--ease-spring` | cubic-bezier(0.34, 1.56, 0.64, 1) | Chart bar growth, playful elements |
 
 ### Styling Library
 
-**Tailwind CSS v4** via `@tailwindcss/vite` plugin. Component library: **shadcn/ui** (Nova preset, customized tokens). No CSS Modules — Tailwind utility classes + shadcn components cover all needs.
+**Tailwind CSS v4** via `@tailwindcss/vite` plugin. Component library: **shadcn/ui** (customized tokens). No CSS Modules.
 
 ### Charting
 
-TBD — will decide during B5 (Operations Overview). Candidates: Recharts (easiest shadcn integration) or custom SVG. Chart styling: amber data series on dark backgrounds, `rgba(255,255,255,0.05)` grid lines.
+CSS-based. No external charting library. Overview uses:
+- Horizontal bar chart via `width%` on colored divs
+- Donut chart via CSS `conic-gradient`
 
 ---
 
 ## Pass 2 — Component Patterns
 
-Populated during B1 (Case Queue). These patterns are reused by B2–B5.
-
 ### Component Vocabulary
 
 **DataTable** (`src/components/shared/DataTable.tsx`)
 - Generic sortable table with typed column definitions
-- Container: `rounded-lg border border-border/60` — very subtle border
-- Header row: `bg-surface-alt/50` — barely distinct from body, muted uppercase labels
-- Body rows: `py-3.5` padding, `border-b border-border/50` separators
-- Selected row: `bg-primary/[0.06] border-l-2 border-l-primary` — subtle amber highlight + amber left accent
-- Hover: `hover:bg-surface-elevated/40`
-- Transitions: `duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)]` (design criteria base motion)
+- Container: `rounded-xl border border-border`
+- Header row: `bg-surface-alt` — solid background, uppercase semibold labels with wide tracking
+- Body rows: `py-3.5` padding, `border-b border-border` separators
+- Selected row: `bg-accent-muted border-l-[3px] border-l-primary` — amber accent bar
+- Hover: `hover:bg-surface-hover`
+- Transitions: `duration-[var(--duration-fast)] ease-[var(--ease-standard)]`
 
 **DetailPanel** (`src/components/shared/DetailPanel.tsx`)
-- Right-side panel, 400px fixed width, `bg-surface`
-- Breaks out of Layout padding via negative margins when open (page-level concern)
-- Sticky header with `text-base font-semibold` title + close button
+- Fixed position right-side panel, 420px wide, `bg-surface`
+- Left border, floating shadow
+- Sticky header with title + close button
 - Scrollable content area with `px-5 py-4` padding
 - Uses `<aside>` element for semantics
 
 **FilterBar** (`src/components/shared/FilterBar.tsx`)
 - Search input + dropdown filters + clear button
-- Inputs: `h-8 rounded-lg bg-surface border-border` with amber focus ring
-- Dropdowns: `appearance-none` with Lucide `ChevronDown` overlay
+- Inputs: `h-8 rounded-lg bg-background border-border` with amber focus ring (`focus:border-primary`)
+- Placeholder text uses `text-text-tertiary`
 - Clear button appears when any filter is active
-- Fast transitions: `duration-[120ms]`
 
 **StatusChip** (`src/components/shared/StatusChip.tsx`)
-- Pill-shaped (`rounded-full`) inline badge for status and priority values
-- Color mapping: semantic backgrounds at 15–20% opacity with matching text color
-- Status: New (amber), Triaged (secondary amber), Investigating (warning), Enforcement (destructive), Closed (muted)
-- Priority: Low (muted), Medium (secondary amber), High (warning), Critical (destructive)
+- Pill-shaped (`rounded-full`) inline badge with dot indicator (1.5px circle)
+- Supports 4 types: `status`, `priority`, `domain-status`, `action-status`
+- Color mapping uses semantic muted backgrounds:
+  - Amber (`accent-muted` / `primary`): New cases, warnings
+  - Blue (`info-muted` / `info`): Triaged, medium priority, monitoring, sent
+  - Red (`danger-muted` / `destructive`): Enforcement, critical, incident, denied
+  - Green (`success-muted` / `success`): Resolved
+  - Gray (`surface-alt` / `text-secondary`): Closed, low priority, suspended, queued
 
-**Page Header Pattern** (established in Queue, reuse in B2–B5)
-- Title: `text-3xl font-bold tracking-tight text-foreground`
-- Subtitle: `mt-1 text-sm text-text-secondary`
+**StatCard** (in `Overview.tsx`)
+- `rounded-xl border border-border bg-surface p-6`
+- Hover: `-translate-y-0.5` lift + `shadow-medium`
+- Highlighted variant: `border-l-[3px] border-l-primary`
+- Trend badge: pill with directional icon (up/down/flat), colored by sentiment
+
+### App Shell
+
+**Sidebar** (`src/components/shell/NavRail.tsx`)
+- Width: 260px, `bg-surface`, right border
+- Logo: amber icon + "Sentinel" brand text
+- Nav sections with uppercase tracking labels ("Workflow", "Project")
+- Lucide icons on all nav items
+- Active state: amber left accent bar (3px, pill-rounded) + `bg-accent-muted text-primary`
+- Badges: live counts from context, styled pill
+- User block at footer: initials avatar (amber gradient) + name + role
+
+**TopBar** (`src/components/shell/TopBar.tsx`)
+- Height: 64px, `bg-surface`, bottom border
+- Left: breadcrumb (Home / page name, derived from route)
+- Right: search input with kbd shortcut hint + notification bell with red dot
 
 ### Spacing and Rhythm
 
-- Page content sections: `space-y-6` (24px) between header, filters, and table
-- Layout main content: `px-10 py-8` (40px horizontal, 32px vertical)
-- Detail panel sections: `pt-5` top padding with `border-t border-border/50` dividers
-- Detail section headers: `mb-3` below title before content
-- Detail metadata rows: `py-1` vertical rhythm
-- Button groups: `gap-2` between buttons, `size="sm"` for controls
-
-### Motion System
-
-Centralized in `global.css` as CSS custom properties from design criteria:
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--duration-fast` | 120ms | Close buttons, filter clear, sort header hover |
-| `--duration-base` | 180ms | Row hover, nav link transitions |
-| `--duration-slow` | 280ms | Panel open/close (future) |
-| `--duration-scene` | 420ms | Page-level transitions (future) |
-| `--ease-standard` | cubic-bezier(0.22, 1, 0.36, 1) | All interactive transitions |
-| `--ease-exit` | cubic-bezier(0.4, 0, 1, 1) | Exit animations (future) |
-
-Applied via Tailwind arbitrary values: `duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)]`
-
-### Responsive Behavior
-
-Desktop-first. Responsive pass deferred to POLISH phase. Key principles from design criteria:
-- Shell concept preserved at all sizes (tighter padding on mobile, but amber margin remains)
-- Multi-column → single-column stack below 1024px
-- Nav rail → collapsible or bottom nav on mobile (TBD)
+- Page content sections: `space-y-6` to `space-y-8`
+- Layout main content: `p-8` (32px all sides)
+- Detail panel sections: `pt-5` top padding with `border-t border-border` dividers
+- Stat cards grid: `gap-6`
+- Chart panels grid: `gap-6`
 
 ### State Patterns
 
-- **Selected**: amber left border + subtle amber background tint
-- **Hover**: surface-elevated at 40% opacity
-- **Focus**: amber ring (`ring-ring`) on all interactive elements
-- **Active button**: `active:translate-y-px` press feedback
+- **Selected**: amber left border + accent-muted background
+- **Hover**: surface-hover background
+- **Focus**: `focus:border-primary focus:ring-1 focus:ring-primary` on inputs
+- **Active button**: `active:scale-[0.98] active:translate-y-px`
+- **Disabled**: `opacity-40 pointer-events-none cursor-not-allowed`
 - **Empty table**: centered muted message, generous vertical padding
 
-Loading: skeleton blocks matching final layout proportions (no spinners).
-Empty: concise copy + single CTA.
-Error: inline, close to affected component, danger color.
+### Responsive Behavior
 
-### Deviations from Pass 1
-
-- **Nav rail badges**: active state uses `bg-primary/20 text-primary` instead of generic surface elevated — ties badge to amber accent system when the nav item is active.
-- **Table header background**: uses `bg-surface-alt/50` instead of solid `bg-surface` — barely visible distinction matches reference's extremely subtle header treatment.
-- **Card containers use `rounded-xl` (20px)**: matches Torch reference exactly (computed 20px on all cards). Table container, note cards.
-- **No outer borders on card-like containers**: reference cards use zero borders — surface color contrast alone provides separation. Table container border removed; internal row dividers preserved for data readability.
-- **Headline weight 600 (semibold)**: reference uses weight 500 at 72px. Scaled to 600 for our smaller 30px context to maintain equivalent visual weight.
-- **All structural borders softened to `/40` opacity**: nav rail, detail panel left border, detail panel header — near-invisible, matching reference's borderless card aesthetic.
+Desktop-first. Responsive pass deferred to POLISH phase. Key principles:
+- Sidebar collapses to icons at 1024px, hidden at 768px
+- Stat cards reflow: 4 → 2 → 1 columns
+- Charts stack vertically below lg breakpoint
+- Tables gain horizontal scroll on mobile

@@ -7,7 +7,7 @@ Part of the portfolio at https://tqny.github.io/Tony-s-Site/
 
 ## Current Phase
 
-**BUILD — Phase B (Pages)**
+**BUILD — Phase D (Ship)**
 
 Phases progress as: BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
 
@@ -17,21 +17,21 @@ Update this field as the project advances.
 
 ## What To Do Right Now
 
-Foundation is complete (A1–A6). Design system is applied (Warm Contrast Analytics). B1 Case Queue and B2 Investigation are complete. Next: B3 Domain Portfolio.
+Foundation (A1–A6), all pages (B1–B5), and portfolio surface (C1–C4) are complete. Next: Phase D — deploy, review pass, finalize README.
 
 1. Read this file, then follow the read order below.
-2. Work from `docs/tasks.md` — Phase B tasks, one page at a time.
-3. Build order: B1 Case Queue → B2 Investigation → B3 Domain Portfolio → B4 Enforcement Tracker → B5 Operations Overview.
-4. B1 establishes shared component patterns (table, detail panel, filter bar, status chips) that B2–B5 reuse.
-5. After Phase B, move to Phase C (portfolio surface: About page, breadcrumbs, nav badges, reset demo).
-6. Then Phase D (ship: deployment, review, README final).
-7. **Run `/review`** before creating PRs — catches console errors, accessibility issues, and polish problems.
-8. **Run `/browse`** for visual QA — screenshots, responsive checks, user flow verification via headless browser.
-9. **Run `/ship`** when a feature branch is ready — automates sync, checks, push, and PR creation.
+2. Work from `docs/tasks.md` — Phase D tasks.
+3. **Run `/review`** before creating PRs — catches console errors, accessibility issues, and polish problems.
+4. **Run `/browse`** for visual QA — screenshots, responsive checks, user flow verification via headless browser.
+5. **Run `/ship`** when a feature branch is ready — automates sync, checks, push, and PR creation.
 
 ### Design Authority
 
-The design system is documented in `docs/design.md`. The source-of-truth criteria files live at `~/Desktop/domain design criteria/` (design-criteria.jsonc + developer-brief.md). All tokens are mapped into `src/styles/global.css`. When building components, follow the Warm Contrast Analytics system — amber accent is rationed deliberately.
+The design system is **Torch Dark Gold**, documented in `docs/design.md`. The source-of-truth criteria files live at `~/Desktop/domain new/` (design-criteria.jsonc + developer-brief.md). All tokens are mapped into `src/styles/global.css`. Amber accent is rationed deliberately.
+
+### Brand Target
+
+Seed data simulates brand protection operations on behalf of **Bank of America**. Domain threats target `bankofamerica.com`, `bofa.com`, etc. This enables real scanning in the future DATA phase.
 
 ---
 

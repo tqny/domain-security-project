@@ -10,8 +10,8 @@
 | Language | TypeScript | Type safety, portfolio signal, IDE support |
 | Routing | React Router v7 | Simple for 6 routes, no file-based needed |
 | State | React Context + localStorage | Lightweight, persistent demo state |
-| Styling | TBD (design references pending) | Likely Tailwind or CSS Modules |
-| Charting | TBD (during build) | Recharts or custom SVG |
+| Styling | Tailwind CSS v4 + shadcn/ui | Token-based design system, utility classes |
+| Charting | CSS-based (no library) | Horizontal bars via width%, donut via conic-gradient |
 | Deployment | GitHub Pages | Static hosting, GitHub Actions deploy |
 
 ## Module Structure
@@ -21,44 +21,40 @@
 │                        React App                            │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │                    App Shell                         │   │
+│  │                    App Shell (CSS Grid)              │   │
 │  │  ┌───────────┐  ┌───────────────────────────────┐   │   │
-│  │  │  Nav Rail  │  │       Page Content             │   │   │
-│  │  │  (sidebar) │  │    (route-specific view)       │   │   │
-│  │  │  + badges  │  │    + breadcrumbs               │   │   │
+│  │  │  Sidebar   │  │  TopBar (breadcrumb + search)  │   │   │
+│  │  │  260px     │  ├───────────────────────────────┤   │   │
+│  │  │  icons     │  │  Page Content                  │   │   │
+│  │  │  badges    │  │  (route-specific view)         │   │   │
+│  │  │  user      │  │                                │   │   │
 │  │  └───────────┘  └───────────────────────────────┘   │   │
 │  └─────────────────────────────────────────────────────┘   │
 │                                                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐   │
 │  │  Data Layer   │  │  Components  │  │  Design System │   │
 │  │              │  │              │  │               │   │
-│  │  types.ts    │  │  Table       │  │  tokens       │   │
-│  │  seed.ts     │  │  DetailPanel │  │  (CSS vars /  │   │
-│  │  store.ts    │  │  Chart       │  │   Tailwind)   │   │
-│  │  (context +  │  │  FilterBar   │  │               │   │
-│  │   persist)   │  │  StatusChip  │  │               │   │
-│  │              │  │  Timeline    │  │               │   │
-│  │              │  │  KpiCard     │  │               │   │
+│  │  types.ts    │  │  DataTable   │  │  Torch Dark   │   │
+│  │  seed.ts     │  │  DetailPanel │  │  Gold tokens  │   │
+│  │  store.tsx   │  │  FilterBar   │  │  (CSS vars +  │   │
+│  │  (context +  │  │  StatusChip  │  │   Tailwind)   │   │
+│  │   persist)   │  │  StatCard    │  │               │   │
+│  │              │  │  Charts      │  │               │   │
 │  └──────────────┘  └──────────────┘  └────────────────┘   │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │                  Shared Utilities                     │  │
-│  │  formatters · filters · sort · SLA calc · dates      │  │
-│  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Module Responsibilities
 
-**Data Layer** — TypeScript interfaces, seed data generator, React context provider, localStorage persistence hook. Single source of truth for all app state.
+**Data Layer** — TypeScript interfaces, seed data generator (BofA-targeted threats), React context provider, localStorage persistence hook. Single source of truth for all app state.
 
-**Components** — Reusable UI primitives shared across pages. Table, DetailPanel, FilterBar, Chart, StatusChip, Timeline, KpiCard, Breadcrumb, Badge. Built during the first page (Case Queue) and reused thereafter.
+**Components** — Reusable UI primitives shared across pages. DataTable, DetailPanel, FilterBar, StatusChip. Built during B1 (Case Queue) and reused by all subsequent pages.
 
-**Design System** — Tokens (colors, typography, spacing, radii, shadows, motion), layout primitives, theme configuration. Populated after design references arrive.
+**Design System** — Torch Dark Gold tokens (colors, typography, spacing, radii, shadows, motion) in `src/styles/global.css`, consumed via Tailwind utility classes and shadcn/ui components.
 
-**Pages** — Route-specific compositions of components + data. Each page owns its layout, filters, and local UI state (selected row, active filters). Domain state flows from the shared context.
+**Pages** — Route-specific compositions of components + data. Each page owns its layout, filters, and local UI state (selected row, active filters). Domain state flows from shared context.
 
-**Shared Utilities** — Pure functions: date formatting, risk score formatting, SLA calculations, filter/sort logic, status helpers.
+**Shell** — Sidebar (NavRail.tsx) with icons, section labels, badges, user block. TopBar (TopBar.tsx) with breadcrumb and search. Layout.tsx wires CSS Grid.
 
 ## Data Flow
 
@@ -66,7 +62,7 @@
 Seed Data (seed.ts)
        │
        ▼
- Context Provider (store.ts)
+ Context Provider (store.tsx)
    │         │
    ▼         ▼
  Pages    localStorage
@@ -86,14 +82,10 @@ interface AppState {
   domains: Domain[]
   vendors: Vendor[]
   enforcementActions: EnforcementAction[]
-  // UI-only (not persisted)
-  selectedCaseId: string | null
-  selectedDomainId: string | null
-  selectedActionId: string | null
 }
 ```
 
-**Mutations** (carried from original, validated during build):
+**Mutations:**
 - addCaseNote, setCaseOwner, updateCaseStatus, escalateCasePriority
 - createEnforcementAction, updateEnforcementStatus, addEnforcementNote
 - addDomainActionLog
@@ -108,90 +100,70 @@ src/
 ├── types/
 │   └── index.ts                # All TypeScript interfaces
 ├── data/
-│   ├── seed.ts                 # Seed data generator
+│   ├── seed.ts                 # Seed data generator (BofA threats)
 │   └── store.tsx               # Context provider + mutations + persistence
 ├── components/
 │   ├── shell/
-│   │   ├── NavRail.tsx         # Sidebar navigation + badges
-│   │   ├── Breadcrumb.tsx      # Cross-page navigation trail
-│   │   └── Layout.tsx          # App shell wrapper
+│   │   ├── NavRail.tsx         # Sidebar: logo, nav sections, icons, badges, user block
+│   │   ├── TopBar.tsx          # TopBar: breadcrumb, search, notifications
+│   │   └── Layout.tsx          # CSS Grid shell (sidebar + topbar + main)
 │   ├── shared/
-│   │   ├── Table.tsx           # Sortable, filterable data table
-│   │   ├── DetailPanel.tsx     # Side panel for selected records
-│   │   ├── FilterBar.tsx       # Search + dropdowns + chips
-│   │   ├── StatusChip.tsx      # Status/priority badge
-│   │   ├── Timeline.tsx        # Chronological event list
-│   │   ├── KpiCard.tsx         # Metric display card
-│   │   └── Chart.tsx           # Chart wrapper (type TBD)
+│   │   ├── DataTable.tsx       # Generic sortable data table
+│   │   ├── DetailPanel.tsx     # Right-side detail panel overlay
+│   │   ├── FilterBar.tsx       # Search + dropdown filters
+│   │   └── StatusChip.tsx      # Status/priority/domain/action badges
 │   └── pages/
-│       ├── Overview.tsx
-│       ├── Queue.tsx
-│       ├── Investigation.tsx
-│       ├── Domains.tsx
-│       ├── Enforcement.tsx
-│       └── About.tsx
-├── utils/
-│   ├── formatters.ts           # Date, currency, score formatting
-│   ├── filters.ts              # Filter/sort logic
-│   └── sla.ts                  # SLA calculation helpers
-└── styles/                     # Design tokens + global styles (TBD)
+│       ├── Overview.tsx        # Stat cards, charts, recent activity
+│       ├── Queue.tsx           # Case table + detail panel
+│       ├── Investigation.tsx   # Case deep-dive (timeline, evidence, AI, decisions)
+│       ├── Domains.tsx         # Domain table + detail panel
+│       ├── Enforcement.tsx     # Action table + detail panel + vendor summary
+│       └── About.tsx           # Portfolio reviewer page + reset demo
+└── styles/
+    └── global.css              # Torch Dark Gold design tokens
 ```
 
 ## Key Interaction Flows
 
 ### Case Flow
-Queue → select case → detail panel → update status/owner/notes → navigate to Investigation for deep-dive → create enforcement action
+Queue → select case → detail panel → update status/owner/notes → click linked domain → Domains page. Or: navigate to Investigation for deep-dive.
+
+### Investigation Flow
+Investigation → select case (or arrive via `?case=` deep link from another page) → view timeline, evidence, AI analysis → update status → view enforcement actions.
 
 ### Domain Flow
-Domain Portfolio → select domain → detail panel → view linked cases → add registrar action log → navigate to linked case
+Domain Portfolio → select domain → detail panel → view security controls, risk flags → click linked case → navigates to Investigation with that case selected.
 
 ### Enforcement Flow
-Enforcement Tracker → select action → detail panel → update status/notes → view linked case
+Enforcement Tracker → select action → detail panel → view SLA tracking → update status/notes → click linked case → navigates to Investigation.
 
 ### Reporting Flow
-Overview aggregates current state from context. No mutations on this page — read-only.
+Overview aggregates current state from context. No mutations on this page — read-only. Stat cards, pipeline chart, threat donut, recent activity.
 
 ### Cross-Page Navigation
-- Breadcrumbs track navigation path (e.g., Queue → Case #BG-0042 → Investigation)
-- Linked entity IDs in detail panels are clickable, navigating to the relevant page with that entity selected
-- Nav rail badges update reactively from context state
+- TopBar breadcrumb shows `Home / {page name}` on every page
+- Linked entity IDs in detail panels are clickable, navigating to the relevant page with query params
+- Nav sidebar badges update reactively from context state
 
 ## External Dependencies
 
-Minimal. Expected:
+Minimal:
 - `react`, `react-dom`, `react-router-dom` — core framework
 - `vite` — build tool
-- Styling library TBD (Tailwind or CSS Modules)
-- Charting library TBD (Recharts or custom)
-- `gh-pages` or GitHub Actions — deployment
+- `tailwindcss`, `@tailwindcss/vite` — styling
+- `class-variance-authority`, `radix-ui` — shadcn/ui primitives
+- `lucide-react` — icons
+- `@fontsource-variable/geist` — typography
 
-No backend. No external APIs during BUILD phase.
+No backend. No external APIs during BUILD phase. No charting library.
 
 ## Boundaries and Swap Points
 
 | Boundary | What can change without ripple |
 |----------|-------------------------------|
 | Data source | Swap `seed.ts` for JSON files from pipeline — same interfaces |
-| Styling | Swap Tailwind ↔ CSS Modules — components use semantic class names |
-| Charting | Swap library — Chart.tsx wrapper isolates the dependency |
+| Styling | Tokens in `global.css` control all colors — one-file swap |
+| Charting | CSS-based charts can be replaced with Recharts — contained in Overview |
 | Deployment | Swap GitHub Pages ↔ Vercel — Vite builds static assets either way |
-| Pages | Add/remove pages — router config + nav rail, no shared component changes |
-
-## Decisions Carried Forward
-
-From the original project's decision log (2026-03-05), these decisions remain valid:
-
-1. **5-page architecture** — workflow stages are the right pages
-2. **Desktop-first** — primary reviewer context
-3. **One hero surface per page** + one support element — prevents card fragmentation
-4. **No literal heatmap** — table-first for domain data unless real 2-axis model added
-5. **No ornamental KPI rows** on operational pages — overview only
-6. **Left rail = primary navigation** — no duplicate topbar nav
-7. **Data model preserved** — Case, Evidence, Domain, Vendor, EnforcementAction
-
-## Open Items (blocked on design references)
-
-- Styling library choice (Tailwind vs CSS Modules)
-- Token system (colors, typography, spacing)
-- Layout specifics (exact sidebar width, content max-width, panel proportions)
-- Charting approach (library vs custom — depends on design density)
+| Pages | Add/remove pages — router config + sidebar, no shared component changes |
+| Brand target | Swap seed data brand — entity types are brand-agnostic |
