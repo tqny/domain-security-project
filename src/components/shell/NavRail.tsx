@@ -8,6 +8,7 @@ import {
   Globe,
   Gavel,
   Info,
+  Radar,
 } from 'lucide-react'
 
 interface NavItem {
@@ -100,6 +101,37 @@ export default function NavRail() {
             </NavLink>
           ))}
         </div>
+      </nav>
+
+      {/* Tools nav */}
+      <nav className="px-3 mb-6">
+        <div className="mb-2 px-3 text-xs font-medium uppercase tracking-widest text-text-tertiary">
+          Tools
+        </div>
+        <NavLink
+          to="/live-scan"
+          className={({ isActive }) =>
+            cn(
+              'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium no-underline transition-all',
+              'duration-[var(--duration-fast)] ease-[var(--ease-standard)]',
+              isActive
+                ? 'bg-accent-muted text-primary'
+                : 'text-text-secondary hover:bg-surface-hover hover:text-foreground'
+            )
+          }
+        >
+          {({ isActive }) => (
+            <>
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full bg-primary" />
+              )}
+              <span className={cn('shrink-0', isActive ? 'opacity-100' : 'opacity-70')}>
+                <Radar className="size-[18px]" />
+              </span>
+              <span>Live Scan</span>
+            </>
+          )}
+        </NavLink>
       </nav>
 
       {/* Project nav */}

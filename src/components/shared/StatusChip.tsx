@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import type { CaseStatus, Priority, DomainStatus, ActionStatus } from '@/types'
+import type { RiskLevel } from '@/types/scan'
 import {
   Plus,
   CheckCircle2,
@@ -49,6 +50,12 @@ const actionStatusStyles: Record<ActionStatus, string> = {
   Denied: 'bg-danger-muted text-destructive',
 }
 
+const riskLevelStyles: Record<RiskLevel, string> = {
+  Low: 'bg-success-muted text-success',
+  Medium: 'bg-warning-muted text-warning',
+  High: 'bg-danger-muted text-destructive',
+}
+
 const statusIcons: Record<string, Record<string, LucideIcon>> = {
   status: {
     New: Plus,
@@ -76,12 +83,17 @@ const statusIcons: Record<string, Record<string, LucideIcon>> = {
     Resolved: CheckCircle2,
     Denied: XCircle,
   },
+  'risk-level': {
+    Low: ArrowDownRight,
+    Medium: Minus,
+    High: AlertTriangle,
+  },
 }
 
-type ChipType = 'status' | 'priority' | 'domain-status' | 'action-status'
+type ChipType = 'status' | 'priority' | 'domain-status' | 'action-status' | 'risk-level'
 
 interface StatusChipProps {
-  value: CaseStatus | Priority | DomainStatus | ActionStatus
+  value: CaseStatus | Priority | DomainStatus | ActionStatus | RiskLevel
   type: ChipType
   showIcon?: boolean
   className?: string
@@ -92,6 +104,7 @@ const styleMap: Record<ChipType, Record<string, string>> = {
   priority: priorityStyles,
   'domain-status': domainStatusStyles,
   'action-status': actionStatusStyles,
+  'risk-level': riskLevelStyles,
 }
 
 export default function StatusChip({ value, type, showIcon = true, className }: StatusChipProps) {

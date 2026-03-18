@@ -83,9 +83,15 @@ All tokens centralized in `src/styles/global.css` as CSS custom properties mappe
 
 ### Charting
 
-CSS-based. No external charting library. Overview uses:
-- Horizontal bar chart via `width%` on colored divs
-- Donut chart via CSS `conic-gradient`
+**Recharts** for all interactive charts. Themed via shadcn `ChartContainer` + `ChartConfig` system. Colors derived from `--primary` using `color-mix(in oklch, ...)` palette in `src/lib/chart-palette.ts`.
+
+Overview charts:
+- Case pipeline: horizontal `BarChart` with per-status colors
+- Threat breakdown: `PieChart` donut with active sector highlighting + interactive legend
+- Threats detected: grouped `BarChart` (FY26 vs FY25 monthly)
+- Threat channels: CSS stacked bar + legend list (computed from seed data)
+
+All charts use shared `chartTheme` for axis/grid styling consistency. Custom tooltip components match Torch Dark Gold design tokens.
 
 ---
 

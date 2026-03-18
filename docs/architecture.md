@@ -98,7 +98,8 @@ src/
 ├── main.tsx                    # Entry point
 ├── App.tsx                     # Router + shell layout
 ├── types/
-│   └── index.ts                # All TypeScript interfaces
+│   ├── index.ts                # All TypeScript interfaces
+│   └── scan.ts                 # Live Scan types (ScanResult, ScanSignal, ScanSession)
 ├── data/
 │   ├── seed.ts                 # Seed data generator (BofA threats)
 │   └── store.tsx               # Context provider + mutations + persistence
@@ -108,17 +109,29 @@ src/
 │   │   ├── TopBar.tsx          # TopBar: breadcrumb, search, notifications
 │   │   └── Layout.tsx          # CSS Grid shell (sidebar + topbar + main)
 │   ├── shared/
-│   │   ├── DataTable.tsx       # Generic sortable data table
+│   │   ├── DataTable.tsx       # Generic sortable data table (with optional pagination)
 │   │   ├── DetailPanel.tsx     # Right-side detail panel overlay
-│   │   ├── FilterBar.tsx       # Search + dropdown filters
-│   │   └── StatusChip.tsx      # Status/priority/domain/action badges
+│   │   ├── FilterBar.tsx       # Search + dropdown filters + active filter chips
+│   │   ├── Pagination.tsx      # Page size selector + page numbers + nav buttons
+│   │   ├── PeriodTabs.tsx      # Time-range segmented control (7d/30d/all)
+│   │   └── StatusChip.tsx      # Status/priority/domain/action badges with icons
+│   ├── ui/                     # shadcn/ui primitives (button, chart, table, select, dropdown-menu, tooltip, etc.)
 │   └── pages/
-│       ├── Overview.tsx        # Stat cards, charts, recent activity
-│       ├── Queue.tsx           # Case table + detail panel
+│       ├── Overview.tsx        # Stats strip, AI Insights, Recharts charts, trend/channel panels, recent activity
+│       ├── Queue.tsx           # Case table + detail panel + row actions + pagination
 │       ├── Investigation.tsx   # Case deep-dive (timeline, evidence, AI, decisions)
-│       ├── Domains.tsx         # Domain table + detail panel
-│       ├── Enforcement.tsx     # Action table + detail panel + vendor summary
-│       └── About.tsx           # Portfolio reviewer page + reset demo
+│       ├── Domains.tsx         # Domain table + detail panel + row actions + pagination
+│       ├── Enforcement.tsx     # Action table + detail panel + vendor summary + row actions + pagination
+│       ├── About.tsx           # Workflow strip, demonstrates grid, nav cards, architecture, scope, CTA
+│       └── LiveScan.tsx        # Live Scan: domain input, enrichment, results table, Push to Sentinel bridge
+├── hooks/
+│   └── use-mobile.ts           # Mobile breakpoint hook (from shadcn)
+├── lib/
+│   ├── utils.ts                # cn() utility
+│   ├── chart-palette.ts        # color-mix derived chart colors + shared chart theme
+│   ├── scan-engine.ts          # Domain variant generation (8 techniques), similarity, scoring, analyst summary
+│   ├── enrichment.ts           # DNS/RDAP/cert enrichment via public APIs (dns.google, rdap.org, crt.sh)
+│   └── scan-bridge.ts          # Maps ScanResult[] → AppState entities for Push to Sentinel
 └── styles/
     └── global.css              # Torch Dark Gold design tokens
 ```
@@ -140,6 +153,9 @@ Enforcement Tracker → select action → detail panel → view SLA tracking →
 ### Reporting Flow
 Overview aggregates current state from context. No mutations on this page — read-only. Stat cards, pipeline chart, threat donut, recent activity.
 
+### Live Scan Flow
+Live Scan → enter brand domain → generate variants (client-side) → enrich via public APIs (DNS, RDAP, cert) → results table with risk scores → select result → detail panel with signal breakdown → Push to Sentinel → bridge maps results to Cases/Domains/Evidence/EnforcementActions → replaces app state → navigates to Overview with live data. Reset Demo restores seed data.
+
 ### Cross-Page Navigation
 - TopBar breadcrumb shows `Home / {page name}` on every page
 - Linked entity IDs in detail panels are clickable, navigating to the relevant page with query params
@@ -147,15 +163,23 @@ Overview aggregates current state from context. No mutations on this page — re
 
 ## External Dependencies
 
-Minimal:
 - `react`, `react-dom`, `react-router-dom` — core framework
 - `vite` — build tool
 - `tailwindcss`, `@tailwindcss/vite` — styling
 - `class-variance-authority`, `radix-ui` — shadcn/ui primitives
 - `lucide-react` — icons
 - `@fontsource-variable/geist` — typography
+- `recharts` — interactive charts (BarChart, PieChart, AreaChart, tooltips)
 
-No backend. No external APIs during BUILD phase. No charting library.
+No backend. Live Scan enrichment uses public APIs client-side:
+- DNS resolution via dns.google
+- RDAP/WHOIS via rdap.org
+- Certificate Transparency via crt.sh
+- URLhaus (abuse.ch) via Vite dev proxy (CORS)
+- Spamhaus DBL via dns.google DNS-over-HTTPS
+- AlienVault OTX (optional, requires API key)
+
+API keys stored in `.env` (gitignored). `.env.example` documents setup.
 
 ## Boundaries and Swap Points
 
@@ -163,7 +187,7 @@ No backend. No external APIs during BUILD phase. No charting library.
 |----------|-------------------------------|
 | Data source | Swap `seed.ts` for JSON files from pipeline — same interfaces |
 | Styling | Tokens in `global.css` control all colors — one-file swap |
-| Charting | CSS-based charts can be replaced with Recharts — contained in Overview |
+| Charting | Recharts charts contained in Overview — swap chart types or add new ones without touching other pages |
 | Deployment | Swap GitHub Pages ↔ Vercel — Vite builds static assets either way |
 | Pages | Add/remove pages — router config + sidebar, no shared component changes |
 | Brand target | Swap seed data brand — entity types are brand-agnostic |

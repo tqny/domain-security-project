@@ -8,6 +8,7 @@ const routeNames: Record<string, string> = {
   '/domains': 'Domain Portfolio',
   '/enforcement': 'Enforcement Tracker',
   '/about': 'About This Project',
+  '/live-scan': 'Live Scan',
 }
 
 export default function TopBar() {
