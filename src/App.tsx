@@ -7,6 +7,7 @@ import Investigation from '@/components/pages/Investigation'
 import Domains from '@/components/pages/Domains'
 import Enforcement from '@/components/pages/Enforcement'
 import About from '@/components/pages/About'
+import LiveScan from '@/components/pages/LiveScan'
 import '@/styles/global.css'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="domains" element={<Domains />} />
             <Route path="enforcement" element={<Enforcement />} />
             <Route path="about" element={<About />} />
+            <Route path="live-scan" element={<LiveScan />} />
           </Route>
         </Routes>
       </AppProvider>

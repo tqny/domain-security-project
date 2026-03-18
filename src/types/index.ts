@@ -26,6 +26,7 @@ export type EvidenceType =
   | 'dns_record'
   | 'whois_snapshot'
   | 'cert_log'
+  | 'threat_intel'
 
 // === Entities ===
 

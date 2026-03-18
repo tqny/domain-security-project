@@ -11,4 +11,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api/urlhaus': {
+        target: 'https://urlhaus-api.abuse.ch',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/urlhaus/, ''),
+      },
+    },
+  },
 })

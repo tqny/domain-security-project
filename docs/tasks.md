@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-BUILD — Phase D (Ship)
+BUILD — Phase F (Live Scan + Threat Intel + Smart Scan) complete. Next: Phase D (Ship) or Phase G.
 
 ## Lifecycle
 
@@ -64,6 +64,45 @@ B1 establishes shared component patterns (table, detail panel, filter bar, statu
 - [ ] **D2: Review pass** — Run `/review` and `/browse`. Fix any critical issues.
 - [ ] **D3: README** — Finalize README.md for repo visitors. Done: clear, concise, links to live demo.
 
+## Build Tasks — Phase E: Dashboard Enhancement (complete)
+
+Imported two shadcnblocks dashboard packages as raw material, then mined them for patterns.
+
+- [x] **E1: Chart palette** — `src/lib/chart-palette.ts` with color-mix derived series colors + shared chart theme.
+- [x] **E2: Recharts bar chart** — Replaced CSS bar chart on Overview with Recharts `BarChart` (horizontal layout, custom tooltips).
+- [x] **E3: Recharts donut chart** — Replaced CSS conic-gradient with Recharts `PieChart` (active sector highlighting, interactive legend).
+- [x] **E4: Enhanced stat cards** — Unified `StatsStrip` with icons, previous-period values, percent change, trend arrows, and dividers.
+- [x] **E5: Period tabs** — `PeriodTabs` component on Overview header (7 Days / 30 Days / All Time).
+- [x] **E7: AI Insights card** — Prominent amber-accented card with 3 mock AI recommendations, action buttons, "Beta" badge. `AIInsight` type added for DATA phase readiness.
+- [x] **E8: Pagination** — Reusable `Pagination` component (page size selector, page numbers, nav buttons).
+- [x] **E9: Filter chips** — Active filter chips below FilterBar with individual X clear + "Clear all".
+- [x] **E10: Table pagination** — Integrated into Queue, Domains, Enforcement tables.
+- [x] **E11: Row action menus** — DropdownMenu on table rows (Investigate, Escalate, Close Case, etc.).
+- [x] **E12: StatusChip icons** — Lucide icons for every status type alongside colored dots.
+- [x] **E14: Cleanup** — Deleted dashboard1.tsx and dashboard4.tsx source files.
+- [x] **E.2a: Threats Detected chart** — Grouped BarChart (FY26 vs FY25) with mock monthly data.
+- [x] **E.2b: Threat Channels card** — Channel breakdown with horizontal stacked bar + legend (computed from real seed data).
+- [x] **E.2c: About page rebuild** — Hero with icon, workflow strip (Detection → Resolution), demonstrates grid, nav cards, architecture badges, scope decisions, CTA.
+
+## Build Tasks — Phase F: Live Scan + Bridge to Sentinel
+
+Adds a Live Scan page that generates suspicious domain variants, enriches them with public APIs, scores risk, and bridges results into the existing BPCC workflow.
+
+- [x] **F1: Scan types + domain variant engine** — `src/types/scan.ts` (ScanResult, ScanSignal, ScanSession) + `src/lib/scan-engine.ts` (8 generation techniques, Levenshtein similarity, scoring rubric, risk classification, analyst summary).
+- [x] **F2: Enrichment pipeline** — `src/lib/enrichment.ts` (DNS via dns.google, RDAP via rdap.org, cert via crt.sh). Batched 4 at a time, 500ms delays, 5s timeouts, graceful fallback on failure.
+- [x] **F3: Store mutation** — Added `LOAD_SCAN_DATA` action to store.tsx for full state replacement (bridge writes).
+- [x] **F4: Scan bridge** — `src/lib/scan-bridge.ts` maps ScanResult[] → Cases, Domains, Evidence, EnforcementActions. Distributes cases across all 5 workflow statuses for realistic pipeline population.
+- [x] **F5: StatusChip risk-level** — Added `risk-level` chip type (Low=green, Medium=amber, High=red) to StatusChip.
+- [x] **F6: Routing + navigation** — Route `/live-scan`, NavRail "Tools" section with Radar icon, TopBar breadcrumb.
+- [x] **F7: LiveScan page UI** — Scan form, progress bar, summary stat cards, results DataTable with pagination, DetailPanel with signal breakdown and raw evidence, confirmation modal.
+- [x] **F8: Wire scan + bridge + export** — Full E2E: scan → enrich → Push to Sentinel → Overview populated. CSV export. AbortController for scan cancellation.
+- [x] **F9: Polish** — Live stats during scanning, double-score fix for credential keywords, input validation, empty states.
+- [x] **F10: Threat intelligence enrichment** — URLhaus (abuse.ch) + AlienVault OTX + Spamhaus DBL as new enrichment sources. New `threat_intel` evidence type. Intel column in results table. Graceful degradation when API keys not configured. Vite dev proxy for URLhaus (CORS). Spamhaus uses DNS-over-HTTPS (no proxy needed).
+- [x] **F11: Smart scan — weighted generation** — Rebalanced variant caps: homoglyphs 6→12, keywords 10→14, TLD 7→9, reduced low-threat techniques (char-del 8→4, char-trans 8→5). Added `.biz`, `.us` to TLD pool.
+- [x] **F12: Smart scan — two-pass architecture** — DNS probe phase (8 at a time, 200ms delay) filters to resolving domains before full enrichment. Non-resolving variants get local-only scoring. `ScanPhase` type for progress tracking.
+- [x] **F13: Smart scan — funnel progress UX** — `ScanProgress` component shows "Probing DNS... X/Y" → transition message → "Enriching active domains... X/N". Replaces single progress bar.
+- [x] **F14: Smart scan — suggested targets** — 10 commonly-attacked brand chips (PayPal, Coinbase, Chase, Microsoft, BofA, Instagram, MetaMask, Amazon, Wells Fargo, Netflix). Click fills input.
+
 ---
 
 ## Significant Mid-Build Changes
@@ -71,7 +110,8 @@ B1 establishes shared component patterns (table, detail panel, filter bar, statu
 - **Design system refresh** — Replaced "Warm Contrast Analytics" (warm-tinted oklch grays, framed amber shell) with "Torch Dark Gold" (neutral hex grays, flat sidebar+topbar grid). New criteria files at `~/Desktop/domain new/`. All tokens rewritten in `global.css`.
 - **Brand target change** — Replaced fictional "Acme Corp" with Bank of America in all seed data. Enables real domain scanning in future DATA phase (crt.sh, DNS, WHOIS against BofA typosquats).
 - **Layout restructure** — Removed amber canvas frame. Now full-viewport CSS Grid: 260px sidebar + 64px topbar + scrollable main. Added TopBar component, evolved NavRail into full sidebar with icons, sections, logo, user block.
-- **Charting** — No external library. Overview uses CSS-based charts (horizontal bars via width%, donut via conic-gradient).
+- **Charting upgrade (Phase E)** — Replaced CSS-based charts with Recharts (BarChart, PieChart, grouped bars). Added shadcn ChartContainer/ChartConfig for theming. Added chart-palette.ts for color-mix derived series colors.
+- **Dashboard import (Phase E)** — Imported shadcnblocks dashboard1 + dashboard4 as raw material. Extracted patterns (pagination, filter chips, stat cards, row actions, status icons, chart tooltips). Deleted source files after extraction.
 
 ---
 

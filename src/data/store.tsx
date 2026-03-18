@@ -29,6 +29,7 @@ type Action =
   | { type: 'UPDATE_ENFORCEMENT_STATUS'; actionId: string; status: ActionStatus }
   | { type: 'ADD_ENFORCEMENT_NOTE'; actionId: string; note: EnforcementNote }
   | { type: 'ADD_DOMAIN_ACTION_LOG'; domainId: string; entry: DomainActionLog }
+  | { type: 'LOAD_SCAN_DATA'; payload: AppState }
   | { type: 'RESET' }
 
 // === Reducer ===
@@ -123,6 +124,9 @@ function appReducer(state: AppState, action: Action): AppState {
         ),
       }
 
+    case 'LOAD_SCAN_DATA':
+      return action.payload
+
     case 'RESET':
       return generateSeedData()
   }
@@ -140,6 +144,7 @@ interface AppContextValue {
   updateEnforcementStatus: (actionId: string, status: ActionStatus) => void
   addEnforcementNote: (actionId: string, note: EnforcementNote) => void
   addDomainActionLog: (domainId: string, entry: DomainActionLog) => void
+  loadScanData: (newState: AppState) => void
   resetToSeedData: () => void
 }
 
@@ -231,6 +236,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     addDomainActionLog(domainId, entry) {
       dispatch({ type: 'ADD_DOMAIN_ACTION_LOG', domainId, entry })
+    },
+
+    loadScanData(newState) {
+      dispatch({ type: 'LOAD_SCAN_DATA', payload: newState })
     },
 
     resetToSeedData() {

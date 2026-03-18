@@ -7,7 +7,7 @@ Part of the portfolio at https://tqny.github.io/Tony-s-Site/
 
 ## Current Phase
 
-**BUILD — Phase D (Ship)**
+**BUILD — Phase F (Live Scan) complete**
 
 Phases progress as: BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
 
@@ -17,10 +17,10 @@ Update this field as the project advances.
 
 ## What To Do Right Now
 
-Foundation (A1–A6), all pages (B1–B5), and portfolio surface (C1–C4) are complete. Next: Phase D — deploy, review pass, finalize README.
+Phases A–C (foundation, pages, portfolio surface), Phase E (dashboard enhancement), and Phase F (Live Scan + Bridge) are complete. Phase D (ship) is pending.
 
 1. Read this file, then follow the read order below.
-2. Work from `docs/tasks.md` — Phase D tasks.
+2. Work from `docs/tasks.md` — next pending tasks.
 3. **Run `/review`** before creating PRs — catches console errors, accessibility issues, and polish problems.
 4. **Run `/browse`** for visual QA — screenshots, responsive checks, user flow verification via headless browser.
 5. **Run `/ship`** when a feature branch is ready — automates sync, checks, push, and PR creation.
