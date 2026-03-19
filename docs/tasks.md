@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-BUILD — Phase G (Scan-First Rework) complete. Next: Phase D (Ship) or further polish.
+SHIPPED — All build phases (A–G) and ship phase (D) complete. Live at https://tqny.github.io/domain-security-project/
 
 ## Lifecycle
 
@@ -60,9 +60,9 @@ B1 establishes shared component patterns (table, detail panel, filter bar, statu
 
 ## Build Tasks — Phase D: Ship
 
-- [ ] **D1: GitHub Pages deployment** — GitHub Actions workflow or gh-pages. Done: live at GitHub Pages URL.
-- [ ] **D2: Review pass** — Run `/review` and `/browse`. Fix any critical issues.
-- [ ] **D3: README** — Finalize README.md for repo visitors. Done: clear, concise, links to live demo.
+- [x] **D1: GitHub Pages deployment** — GitHub Actions workflow deploys on push to main. Live at https://tqny.github.io/domain-security-project/.
+- [x] **D2: Review pass** — Accessibility fixes (aria-labels), removed dead code, owner dropdown imports from store.
+- [x] **D3: README** — Full rewrite for scan-first workflow, real enrichment APIs, workflow table, live demo link.
 
 ## Build Tasks — Phase E: Dashboard Enhancement (complete)
 

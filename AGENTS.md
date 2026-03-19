@@ -7,19 +7,19 @@ Part of the portfolio at https://tqny.github.io/Tony-s-Site/
 
 ## Current Phase
 
-**BUILD — Phase G (Scan-First Rework + Dashboard Overhaul) complete**
+**SHIPPED — Phases A–G + D complete. Live at [tqny.github.io/domain-security-project](https://tqny.github.io/domain-security-project/)**
 
-Phases progress as: BRIEF → PLAN → BUILD → DATA (real pipeline) → POLISH
-
-Update this field as the project advances.
+Phases progress as: BRIEF → PLAN → BUILD → SHIP → DATA (real pipeline) → POLISH
 
 ---
 
 ## What To Do Right Now
 
-Phases A–C (foundation), Phase E (dashboard enhancement), Phase F (Live Scan), and Phase G (scan-first rework) are complete. Phase D (ship) is pending.
+All build phases (A–G) and ship phase (D) are complete. The app is deployed to GitHub Pages.
 
-**Important context for Phase G:** The app no longer has seed data. Live Scan is the entry point. Workflow pages are gated behind `RequireScanData`. AI triage happens on the Dashboard via interactive one-at-a-time cards. Sample data available via "Load sample data" on the Live Scan page for quick demos. Branch: `domain-security/rework+fixes`.
+**Key context:** The app is scan-first — no seed data. Live Scan is the entry point. Workflow pages are gated behind `RequireScanData`. AI triage happens on the Dashboard via interactive one-at-a-time cards. Sample data available via "Load sample data" on the Live Scan page for quick demos. Scan results persist in sessionStorage across navigation.
+
+**Next opportunities:** Portfolio page on Tony's site, DATA phase (continuous scanning pipeline), POLISH phase (responsive, a11y, perf).
 
 1. Read this file, then follow the read order below.
 2. Work from `docs/tasks.md` — next pending tasks.
@@ -33,7 +33,7 @@ The design system is **Torch Dark Gold**, documented in `docs/design.md`. The so
 
 ### Brand Target
 
-Seed data simulates brand protection operations on behalf of **Bank of America**. Domain threats target `bankofamerica.com`, `bofa.com`, etc. This enables real scanning in the future DATA phase.
+The app scans any brand domain in real time. Sample data uses common targets (PayPal, Coinbase, etc.). The enrichment pipeline hits real public APIs (Google DoH, rdap.org, crt.sh, Spamhaus, URLhaus, AlienVault OTX).
 
 ---
 
