@@ -1357,10 +1357,10 @@ export default function Overview() {
   }, [state.cases])
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
           Security <span className="text-primary">overview</span>
         </h1>
         <p className="mt-1 text-sm text-text-secondary">

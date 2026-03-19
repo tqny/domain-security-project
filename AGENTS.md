@@ -7,7 +7,7 @@ Part of the portfolio at https://tqny.github.io/Tony-s-Site/
 
 ## Current Phase
 
-**SHIPPED — Phases A–G + D complete. Live at [tqny.github.io/domain-security-project](https://tqny.github.io/domain-security-project/)**
+**SHIPPED + POLISHED — Phases A–G + D + POLISH complete. Live at [tqny.github.io/domain-security-project](https://tqny.github.io/domain-security-project/)**
 
 Phases progress as: BRIEF → PLAN → BUILD → SHIP → DATA (real pipeline) → POLISH
 
@@ -15,11 +15,11 @@ Phases progress as: BRIEF → PLAN → BUILD → SHIP → DATA (real pipeline) �
 
 ## What To Do Right Now
 
-All build phases (A–G) and ship phase (D) are complete. The app is deployed to GitHub Pages.
+All build phases (A–G), ship phase (D), and POLISH phase are complete. The app is deployed to GitHub Pages. Fully responsive down to 375px mobile.
 
-**Key context:** The app is scan-first — no seed data. Live Scan is the entry point. Workflow pages are gated behind `RequireScanData`. AI triage happens on the Dashboard via interactive one-at-a-time cards. Sample data available via "Load sample data" on the Live Scan page for quick demos. Scan results persist in sessionStorage across navigation.
+**Key context:** The app is scan-first — no seed data. Live Scan is the entry point. Workflow pages are gated behind `RequireScanData`. AI triage happens on the Dashboard via interactive one-at-a-time cards. Sample data available via "Load sample data" on the Live Scan page for quick demos. Scan results persist in sessionStorage across navigation. Mobile uses a Sheet drawer for navigation; sidebar is hidden below `md` (768px). All pages lazy-loaded for performance.
 
-**Next opportunities:** Portfolio page on Tony's site, DATA phase (continuous scanning pipeline), POLISH phase (responsive, a11y, perf).
+**Next opportunities:** Portfolio page on Tony's site, DATA phase (continuous scanning pipeline).
 
 1. Read this file, then follow the read order below.
 2. Work from `docs/tasks.md` — next pending tasks.

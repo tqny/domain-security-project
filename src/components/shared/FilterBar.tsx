@@ -34,9 +34,9 @@ export default function FilterBar({
   const hasActiveFilters = Object.values(activeFilters).some((v) => v !== '')
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-3', className)}>
+    <div className={cn('flex flex-wrap items-center gap-2 sm:gap-3', className)}>
       {/* Search */}
-      <div className="relative flex-1 min-w-[200px] max-w-sm">
+      <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-text-tertiary" />
         <input
           type="text"
@@ -44,7 +44,7 @@ export default function FilterBar({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
           aria-label={searchPlaceholder}
-          className="h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-text-tertiary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors duration-[var(--duration-fast)]"
+          className="h-9 sm:h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-text-tertiary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors duration-[var(--duration-fast)]"
         />
       </div>
 
@@ -54,7 +54,7 @@ export default function FilterBar({
           <select
             value={activeFilters[filter.key] || ''}
             onChange={(e) => onFilterChange(filter.key, e.target.value)}
-            className="h-8 rounded-lg border border-border bg-surface pl-3 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer transition-colors duration-[var(--duration-fast)]"
+            className="h-9 sm:h-8 rounded-lg border border-border bg-surface pl-3 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer transition-colors duration-[var(--duration-fast)]"
           >
             <option value="">{filter.label}</option>
             {filter.options.map((opt) => (

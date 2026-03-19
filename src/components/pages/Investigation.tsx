@@ -374,20 +374,20 @@ export default function Investigation() {
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       {/* ─── Header + Case Selector ─── */}
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Investigation</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Investigation</h1>
           <p className="mt-1 text-sm text-text-secondary">Case deep-dive and threat analysis.</p>
         </div>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <select
             value={selectedCaseId ?? ''}
             onChange={(e) => setSelectedCaseId(e.target.value)}
-            className="h-9 appearance-none rounded-lg border border-border bg-surface pl-3 pr-9 text-sm text-foreground transition-colors duration-[var(--duration-fast)] hover:border-border-strong focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
+            className="h-9 w-full sm:w-auto appearance-none rounded-lg border border-border bg-surface pl-3 pr-9 text-sm text-foreground transition-colors duration-[var(--duration-fast)] hover:border-border-strong focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
           >
             {state.cases.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.id} — {c.title.substring(0, 50)}
+                {c.id} — {c.title.substring(0, 40)}
               </option>
             ))}
           </select>
@@ -396,22 +396,22 @@ export default function Investigation() {
       </div>
 
       {/* ─── Hero Banner: Case Info + Risk Gauge + AI Summary ─── */}
-      <div className="rounded-xl border border-border bg-surface p-6">
-        <div className="flex gap-6">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
           {/* Left: case metadata */}
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-2.5 mb-1">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
                   <span className="font-mono text-xs text-muted-foreground">{selectedCase.id}</span>
                   <StatusChip value={selectedCase.status} type="status" />
                   <StatusChip value={selectedCase.priority} type="priority" />
                 </div>
-                <h2 className="text-lg font-semibold text-foreground leading-snug">{selectedCase.title}</h2>
-                <p className="mt-1.5 text-sm text-text-secondary leading-relaxed line-clamp-2">{selectedCase.summary}</p>
+                <h2 className="text-base sm:text-lg font-semibold text-foreground leading-snug">{selectedCase.title}</h2>
+                <p className="mt-1.5 text-sm text-text-secondary leading-relaxed line-clamp-3 sm:line-clamp-2">{selectedCase.summary}</p>
               </div>
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs">
+            <div className="mt-3 sm:mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs">
               <InfoPill icon={<Activity className="size-3" />} label="Channel" value={selectedCase.channel} />
               <InfoPill icon={<AlertTriangle className="size-3" />} label="Threat" value={selectedCase.threatType} />
               <InfoPill icon={<User className="size-3" />} label="Owner" value={selectedCase.owner || 'Unassigned'} />
@@ -423,15 +423,15 @@ export default function Investigation() {
           </div>
 
           {/* Right: Risk Gauge */}
-          <div className="shrink-0 flex flex-col items-center justify-center border-l border-border pl-6">
+          <div className="shrink-0 flex items-center justify-center border-t border-border pt-4 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-6">
             <RiskGauge score={selectedCase.riskScore} />
           </div>
         </div>
 
         {/* AI Summary — amber accent strip */}
-        <div className="mt-5 rounded-lg border border-primary/20 bg-accent-muted p-4">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 rounded-md bg-primary/20 p-1.5">
+        <div className="mt-4 sm:mt-5 rounded-lg border border-primary/20 bg-accent-muted p-3 sm:p-4">
+          <div className="flex items-start gap-2.5 sm:gap-3">
+            <div className="mt-0.5 rounded-md bg-primary/20 p-1.5 shrink-0">
               <Sparkles className="size-4 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
@@ -440,7 +440,7 @@ export default function Investigation() {
                 <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">Beta</span>
               </div>
               <p className="text-sm text-foreground/90 leading-relaxed">{selectedCase.aiSummary}</p>
-              <div className="mt-2.5 flex items-center gap-2">
+              <div className="mt-2.5 flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
                 <span className="text-xs font-medium text-primary/80">Recommended:</span>
                 <span className="text-xs text-text-secondary">{selectedCase.aiSuggestedAction}</span>
               </div>
@@ -451,8 +451,8 @@ export default function Investigation() {
 
       {/* ─── Scan Intel Strip (only for scan-originated cases) ─── */}
       {scanIntel && (
-        <div className="rounded-xl border border-border bg-surface px-5 py-3.5">
-          <div className="flex items-center gap-5 flex-wrap">
+        <div className="rounded-xl border border-border bg-surface px-4 py-3 sm:px-5 sm:py-3.5">
+          <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
             <div className="flex items-center gap-2 text-xs">
               <Radar className="size-3.5 text-primary" />
               <span className="font-medium uppercase tracking-wider text-muted-foreground">Scan Intel</span>
@@ -487,7 +487,7 @@ export default function Investigation() {
         {/* Left column (3/5) — Evidence (hero) + Timeline */}
         <div className="lg:col-span-3 space-y-5">
           {/* Evidence */}
-          <section className="rounded-xl border border-border bg-surface p-5">
+          <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
             <h3 className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <Shield className="size-3.5" />
               Evidence — {caseEvidence.length} items
@@ -519,7 +519,7 @@ export default function Investigation() {
           </section>
 
           {/* Signal Timeline */}
-          <section className="rounded-xl border border-border bg-surface p-5">
+          <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
             <h3 className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <Clock className="size-3.5" />
               Signal Timeline — {timeline.length} events
@@ -564,7 +564,7 @@ export default function Investigation() {
         {/* Right column (2/5) — Decision + Enforcement + Risk Breakdown */}
         <div className="lg:col-span-2 space-y-5">
           {/* Case Decision */}
-          <section className="rounded-xl border border-border bg-surface p-5">
+          <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
             <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Case Decision
             </h3>
@@ -590,7 +590,7 @@ export default function Investigation() {
 
           {/* Enforcement Actions */}
           {caseActions.length > 0 && (
-            <section className="rounded-xl border border-border bg-surface p-5">
+            <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
               <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <ExternalLink className="size-3.5" />
                 Enforcement Actions ({caseActions.length})
@@ -612,7 +612,7 @@ export default function Investigation() {
           )}
 
           {/* Risk Breakdown */}
-          <section className="rounded-xl border border-border bg-surface p-5">
+          <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
             <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <AlertTriangle className="size-3.5" />
               Risk Breakdown

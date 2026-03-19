@@ -36,7 +36,7 @@ export function Pagination({
           value={pageSize.toString()}
           onValueChange={(v) => onPageSizeChange(Number(v))}
         >
-          <SelectTrigger className="h-7 w-[60px] text-xs">
+          <SelectTrigger className="h-8 sm:h-7 w-[60px] text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -52,15 +52,15 @@ export function Pagination({
         </span>
       </div>
 
-      <div className="flex items-center gap-1">
-        <Button variant="outline" size="icon" className="size-7" onClick={() => goToPage(1)} disabled={currentPage === 1} aria-label="First page">
-          <ChevronsLeft className="size-3.5" />
+      <div className="flex items-center gap-1.5 sm:gap-1">
+        <Button variant="outline" size="icon" className="size-9 sm:size-7" onClick={() => goToPage(1)} disabled={currentPage === 1} aria-label="First page">
+          <ChevronsLeft className="size-4 sm:size-3.5" />
         </Button>
-        <Button variant="outline" size="icon" className="size-7" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Previous page">
-          <ChevronLeft className="size-3.5" />
+        <Button variant="outline" size="icon" className="size-9 sm:size-7" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Previous page">
+          <ChevronLeft className="size-4 sm:size-3.5" />
         </Button>
 
-        <div className="flex items-center gap-1 px-1">
+        <div className="flex items-center gap-1.5 sm:gap-1 px-1">
           {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
             let pageNum: number
             if (totalPages <= 5) {
@@ -77,7 +77,7 @@ export function Pagination({
                 key={pageNum}
                 variant={currentPage === pageNum ? 'default' : 'ghost'}
                 size="icon"
-                className="size-7 text-xs"
+                className="size-9 sm:size-7 text-xs"
                 onClick={() => goToPage(pageNum)}
               >
                 {pageNum}
@@ -86,11 +86,11 @@ export function Pagination({
           })}
         </div>
 
-        <Button variant="outline" size="icon" className="size-7" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0} aria-label="Next page">
-          <ChevronRight className="size-3.5" />
+        <Button variant="outline" size="icon" className="size-9 sm:size-7" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0} aria-label="Next page">
+          <ChevronRight className="size-4 sm:size-3.5" />
         </Button>
-        <Button variant="outline" size="icon" className="size-7" onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages || totalPages === 0} aria-label="Last page">
-          <ChevronsRight className="size-3.5" />
+        <Button variant="outline" size="icon" className="size-9 sm:size-7" onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages || totalPages === 0} aria-label="Last page">
+          <ChevronsRight className="size-4 sm:size-3.5" />
         </Button>
       </div>
     </div>

@@ -170,10 +170,20 @@ All charts use shared `chartTheme` for axis/grid styling consistency. Custom too
 - **Disabled**: `opacity-40 pointer-events-none cursor-not-allowed`
 - **Empty table**: centered muted message, generous vertical padding
 
-### Responsive Behavior
+### Responsive Behavior (implemented in POLISH phase)
 
-Desktop-first. Responsive pass deferred to POLISH phase. Key principles:
-- Sidebar collapses to icons at 1024px, hidden at 768px
-- Stat cards reflow: 4 → 2 → 1 columns
-- Charts stack vertically below lg breakpoint
-- Tables gain horizontal scroll on mobile
+Desktop-first, fully responsive down to 375px. Two layout paths:
+
+- **Desktop (`md+`, 768px)**: CSS Grid with 260px sidebar + topbar + scrollable main. Sidebar visible with full nav. TopBar shows breadcrumb + search + notifications.
+- **Mobile (`< md`)**: Flexbox column layout. Sidebar hidden, replaced by Sheet-based drawer (`MobileNav.tsx`) triggered by hamburger in TopBar. Search hidden. Content padding `p-4`.
+
+Breakpoint behavior:
+- Sidebar: visible at `md` (768px), drawer below
+- Page titles: `text-2xl` mobile, `text-3xl` desktop
+- Stat cards: `grid-cols-2` mobile, `grid-cols-4` at `lg`
+- Chart grids: `grid-cols-1` mobile, multi-column at `lg`
+- Tables: horizontal scroll with `min-w-[600px]` on mobile
+- DetailPanel: full-screen with backdrop on mobile, 420px fixed right panel on desktop
+- FilterBar: full-width search on mobile, inline on desktop
+- Pagination buttons: `size-9` (36px) mobile, `size-7` (28px) desktop
+- Touch targets: minimum 36px on all interactive elements on mobile
