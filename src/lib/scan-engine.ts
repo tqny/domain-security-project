@@ -179,21 +179,23 @@ function hyphenationVariants(name: string, tld: string): VariantCandidate[] {
 
 /**
  * Generate suspicious domain variants for a given brand domain.
- * Applies 8 generation techniques, deduplicates, caps at ~80 results.
+ * Applies 8 generation techniques, deduplicates, caps at ~40 results.
+ * Prioritizes high-threat methods (homoglyphs, keywords) over low-threat ones.
  */
 export function generateVariants(brandDomain: string): VariantCandidate[] {
   const { name, tld } = parseDomain(brandDomain)
   const original = name + tld
 
+  // Generate in priority order: high-threat methods first, broad coverage
   const allVariants = [
-    ...charSubstitutions(name, tld),
-    ...charInsertions(name, tld),
-    ...charDeletions(name, tld),
-    ...charTranspositions(name, tld),
-    ...homoglyphVariants(name, tld),
-    ...keywordVariants(name, tld),
-    ...tldVariations(name),
-    ...hyphenationVariants(name, tld),
+    ...homoglyphVariants(name, tld).slice(0, 10),          // 10 homoglyphs (high threat)
+    ...keywordVariants(name, tld).slice(0, 12),            // 12 keyword variants (high threat)
+    ...tldVariations(name).slice(0, 7),                    // 7 TLD variations
+    ...charTranspositions(name, tld).slice(0, 4),          // 4 transpositions
+    ...charSubstitutions(name, tld).slice(0, 4),           // 4 substitutions
+    ...charInsertions(name, tld).slice(0, 3),              // 3 insertions
+    ...hyphenationVariants(name, tld).slice(0, 2),         // 2 hyphenation
+    ...charDeletions(name, tld).slice(0, 2),               // 2 deletions
   ]
 
   // Deduplicate and remove the original domain
@@ -207,7 +209,7 @@ export function generateVariants(brandDomain: string): VariantCandidate[] {
     }
   }
 
-  return unique.slice(0, 80)
+  return unique.slice(0, 40)
 }
 
 // === Similarity ===
@@ -247,18 +249,48 @@ const SUPPORT_KEYWORDS = ['support', 'help', 'service', 'customer', 'contact']
 
 /**
  * Compute risk score (0-100) from similarity and enrichment signals.
+ * Includes compound bonuses for signal combinations that indicate active threats.
  */
 export function computeRiskScore(similarity: number, signals: ScanSignal[]): number {
   let score = 0
 
-  // High similarity to brand (+25)
-  if (similarity >= 0.8) score += 25
+  // High similarity to brand
+  if (similarity >= 0.95) score += 35
+  else if (similarity >= 0.9) score += 30
+  else if (similarity >= 0.8) score += 25
   else if (similarity >= 0.6) score += 15
 
   // Sum signal contributions
   for (const s of signals) {
     score += s.scoreContribution
   }
+
+  // Compound bonuses — signal combos that indicate active threats
+  const hasDns = signals.some((s) => s.type === 'dns')
+  const hasCert = signals.some((s) => s.type === 'cert')
+  const hasRecentRdap = signals.some((s) => s.type === 'rdap' && s.value.includes('recent'))
+  const hasKeyword = signals.some((s) => s.type === 'keyword')
+  const hasHomoglyph = signals.some((s) => s.type === 'homoglyph')
+  const hasThreatIntel = signals.some((s) => s.type === 'urlhaus' || s.type === 'otx' || s.type === 'spamhaus')
+
+  // Active infrastructure: DNS + cert = trying to look legitimate
+  if (hasDns && hasCert) score += 15
+
+  // Active + fresh = almost certainly malicious
+  if (hasDns && hasCert && hasRecentRdap) score += 10
+
+  // Deceptive + active = high-confidence phishing
+  if (hasHomoglyph && hasDns) score += 15
+  else if (hasKeyword && hasDns) score += 10
+
+  // Threat intel hit + active = confirmed threat
+  if (hasThreatIntel && hasDns) score += 10
+
+  // High similarity + active = brand impersonation
+  if (similarity >= 0.9 && hasDns && !hasKeyword && !hasHomoglyph) score += 10
+
+  // Keyword variants that resolve and have certs are essentially phishing kits
+  if (hasKeyword && hasDns && hasCert) score += 10
 
   return Math.min(100, Math.max(0, score))
 }
@@ -267,90 +299,118 @@ export function computeRiskScore(similarity: number, signals: ScanSignal[]): num
  * Classify risk level from score.
  */
 export function classifyRisk(score: number): RiskLevel {
-  if (score >= 60) return 'High'
+  if (score >= 55) return 'High'
   if (score >= 30) return 'Medium'
   return 'Low'
 }
 
 /**
- * Get recommended action for a risk level.
+ * Get recommended action based on risk level and signal context.
  */
-export function getRecommendedAction(riskLevel: RiskLevel): string {
-  switch (riskLevel) {
-    case 'High':
-      return 'Investigate for impersonation/phishing and prepare registrar/platform escalation'
-    case 'Medium':
-      return 'Collect evidence and review manually'
-    case 'Low':
-      return 'Monitor'
+export function getRecommendedAction(riskLevel: RiskLevel, signals?: ScanSignal[]): string {
+  if (riskLevel === 'Low') return 'Add to monitoring watchlist. Re-assess if domain becomes active.'
+
+  const hasDns = signals?.some((s) => s.type === 'dns')
+  const hasCert = signals?.some((s) => s.type === 'cert')
+  const hasRecentRdap = signals?.some((s) => s.type === 'rdap' && s.value.includes('recent'))
+  const hasThreatIntel = signals?.some((s) => s.type === 'urlhaus' || s.type === 'otx' || s.type === 'spamhaus')
+  const hasHomoglyph = signals?.some((s) => s.type === 'homoglyph')
+  const hasKeyword = signals?.some((s) => s.type === 'keyword')
+  const credentialKw = signals?.find((s) => s.type === 'keyword' && s.label.includes('Credential'))
+
+  if (riskLevel === 'High') {
+    if (hasThreatIntel && hasDns) {
+      return 'Emergency takedown — domain is flagged by threat intelligence and actively resolving. File registrar abuse report immediately and report to Google Safe Browsing.'
+    }
+    if (hasHomoglyph && hasDns && hasCert) {
+      return 'High-confidence phishing infrastructure. File registrar abuse report for emergency takedown. Report to FS-ISAC and coordinate with brand security team.'
+    }
+    if (credentialKw && hasDns) {
+      return 'Active credential harvesting threat. File registrar abuse report, report phishing URLs to Google Safe Browsing and Microsoft SmartScreen.'
+    }
+    if (hasDns && hasCert && hasRecentRdap) {
+      return 'Recently registered with active infrastructure — likely pre-staged for phishing campaign. File preemptive registrar report and escalate to legal for UDRP.'
+    }
+    if (hasHomoglyph) {
+      return 'Homoglyph-based impersonation domain. Investigate for active content and prepare registrar abuse report.'
+    }
+    return 'Investigate for impersonation/phishing and prepare registrar/platform escalation.'
   }
+
+  // Medium
+  if (hasDns && hasRecentRdap) {
+    return 'Recently registered and resolving — monitor closely for content deployment. Prepare evidence package for potential escalation.'
+  }
+  if (hasDns) {
+    return 'Domain is resolving. Investigate landing page content and collect evidence. Escalate if brand impersonation is confirmed.'
+  }
+  if (hasKeyword) {
+    return 'Suspicious keyword variant. Check if domain is being used in email campaigns or ad fraud. Add to monitoring.'
+  }
+  return 'Collect evidence and review manually. Monitor for activation or content changes.'
 }
 
 // === Analyst Summary ===
 
 /**
- * Build a plain-English analyst explanation from scan result signals.
+ * Build a specific, varied analyst summary from scan result signals.
+ * Prioritizes the most dangerous signal combination for the lead sentence.
  */
 export function generateAnalystSummary(result: ScanResult): string {
-  const reasons: string[] = []
   const domainBase = result.domain.split('.')[0]
-
-  if (result.similarity >= 0.8) {
-    reasons.push('is a close typo of the legitimate brand')
-  } else if (result.similarity >= 0.6) {
-    reasons.push('is moderately similar to the legitimate brand')
-  }
-
-  if (result.generationMethod === 'homoglyph') {
-    reasons.push('uses visually deceptive characters (homoglyph)')
-  }
-
+  const hasDns = result.signals.some((s) => s.type === 'dns')
+  const hasCert = result.signals.some((s) => s.type === 'cert')
+  const hasRecentRdap = result.signals.some((s) => s.type === 'rdap' && s.value.includes('recent'))
+  const hasUrlhaus = result.signals.some((s) => s.type === 'urlhaus')
+  const hasOtx = result.signals.some((s) => s.type === 'otx')
+  const hasSpamhaus = result.signals.some((s) => s.type === 'spamhaus')
+  const hasThreatIntel = hasUrlhaus || hasOtx || hasSpamhaus
   const hasCredentialKeyword = CREDENTIAL_KEYWORDS.some((kw) => domainBase.includes(kw))
   const hasSupportKeyword = SUPPORT_KEYWORDS.some((kw) => domainBase.includes(kw))
-  if (hasCredentialKeyword) {
-    reasons.push('contains a credential-themed keyword')
-  } else if (hasSupportKeyword) {
-    reasons.push('contains a support/service-themed keyword')
+  const isHomoglyph = result.generationMethod === 'homoglyph'
+
+  const parts: string[] = []
+
+  // Lead with the most dangerous combination
+  if (hasThreatIntel && hasDns) {
+    const sources: string[] = []
+    if (hasUrlhaus) sources.push('URLhaus')
+    if (hasSpamhaus) sources.push('Spamhaus DBL')
+    if (hasOtx) sources.push('AlienVault OTX')
+    parts.push(`Confirmed malicious domain — flagged by ${sources.join(' and ')} with active DNS resolution. This is an active threat requiring immediate action.`)
+  } else if (isHomoglyph && hasDns && hasCert) {
+    parts.push(`Homoglyph attack using visually deceptive characters to impersonate the brand. Active infrastructure with SSL certificate indicates a live phishing operation designed to harvest credentials.`)
+  } else if (hasCredentialKeyword && hasDns && hasCert) {
+    parts.push(`Credential-themed domain with active infrastructure. The combination of "${CREDENTIAL_KEYWORDS.find((kw) => domainBase.includes(kw))}" keyword, DNS resolution, and SSL certificate strongly suggests an active credential harvesting page.`)
+  } else if (isHomoglyph && hasDns) {
+    parts.push(`Homoglyph-based impersonation domain that is actively resolving. Visual similarity to the brand makes this a high-confidence impersonation threat.`)
+  } else if (hasDns && hasCert && hasRecentRdap) {
+    parts.push(`Recently registered domain with active infrastructure (DNS + SSL). Fresh registration combined with immediate infrastructure deployment is a strong indicator of malicious intent.`)
+  } else if (hasCredentialKeyword && hasDns) {
+    parts.push(`Domain contains credential-themed keyword "${CREDENTIAL_KEYWORDS.find((kw) => domainBase.includes(kw))}" and is actively resolving. Pattern is consistent with phishing or account takeover campaigns.`)
+  } else if (hasSupportKeyword && hasDns) {
+    parts.push(`Support/service-themed domain that is actively resolving. Pattern is consistent with tech support scams or fake customer service operations targeting brand customers.`)
+  } else if (isHomoglyph) {
+    parts.push(`Uses visually deceptive homoglyph characters to mimic the legitimate brand domain. Even without active infrastructure, this domain poses an impersonation risk if activated.`)
+  } else if (hasDns && hasRecentRdap) {
+    parts.push(`Recently registered domain that is actively resolving. Monitor closely for content deployment — recent registration of a brand-similar domain is a precursor to phishing campaigns.`)
+  } else if (hasDns) {
+    parts.push(`Domain is actively resolving, indicating deployed infrastructure. Investigate landing page content for brand impersonation or credential harvesting.`)
+  } else if (hasCredentialKeyword) {
+    parts.push(`Contains credential-themed keyword suggesting potential use for phishing. Currently not resolving but should be monitored for activation.`)
+  } else if (result.similarity >= 0.8) {
+    parts.push(`Close typographic variant of the brand domain. High visual similarity makes this attractive for typosquatting or future impersonation campaigns.`)
+  } else {
+    parts.push(`This domain has a low threat profile based on available signals. Monitor for changes.`)
   }
 
-  const dnsSignal = result.signals.find((s) => s.type === 'dns')
-  if (dnsSignal) {
-    reasons.push('resolves to an active site')
+  // Add supplementary detail for cert
+  if (hasCert && !parts[0].includes('SSL')) {
+    const certSignal = result.signals.find((s) => s.type === 'cert')
+    if (certSignal) parts.push(`SSL certificate detected: ${certSignal.value}.`)
   }
 
-  const certSignal = result.signals.find((s) => s.type === 'cert')
-  if (certSignal) {
-    reasons.push('has an observed SSL certificate')
-  }
-
-  const rdapSignal = result.signals.find((s) => s.type === 'rdap')
-  if (rdapSignal && rdapSignal.value.includes('recent')) {
-    reasons.push('was recently registered')
-  }
-
-  if (result.signals.find((s) => s.type === 'urlhaus')) {
-    reasons.push('is flagged as a known malicious host by URLhaus (abuse.ch)')
-  }
-
-  if (result.signals.find((s) => s.type === 'otx')) {
-    reasons.push('has been reported in community threat intelligence (AlienVault OTX)')
-  }
-
-  if (result.signals.find((s) => s.type === 'spamhaus')) {
-    reasons.push('is listed on the Spamhaus Domain Blocklist')
-  }
-
-  if (reasons.length === 0) {
-    return `This domain (${result.domain}) has a low threat profile based on available signals.`
-  }
-
-  const riskWord = result.riskLevel === 'High' ? 'high risk' : result.riskLevel === 'Medium' ? 'moderate risk' : 'low risk'
-  const joined =
-    reasons.length === 1
-      ? reasons[0]
-      : reasons.slice(0, -1).join(', ') + ', and ' + reasons[reasons.length - 1]
-
-  return `This domain is ${riskWord} because it ${joined}.`
+  return parts.join(' ')
 }
 
 // === Local Signal Builders ===
@@ -384,13 +444,13 @@ export function buildLocalSignals(
       type: 'keyword',
       label: 'Credential-themed keyword',
       value: `Contains "${credentialKeyword}" — suggests login or verification page`,
-      scoreContribution: 20,
+      scoreContribution: 25,
     })
   } else if (supportKeyword) {
     signals.push({
       type: 'keyword',
       label: 'Suspicious keyword',
-      value: `Contains "${supportKeyword}"`,
+      value: `Contains "${supportKeyword}" — potential tech support scam`,
       scoreContribution: 20,
     })
   }

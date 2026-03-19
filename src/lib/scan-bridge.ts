@@ -1,6 +1,7 @@
 import type { ScanResult } from '@/types/scan'
 import type {
   AppState,
+  ScanMeta,
   Case,
   Domain,
   Evidence,
@@ -15,28 +16,28 @@ import type {
   EvidenceType,
 } from '@/types'
 
-// === Status Distribution ===
+// === Constants ===
 
-const CASE_STATUS_DISTRIBUTION: { status: CaseStatus; weight: number }[] = [
-  { status: 'New', weight: 0.2 },
-  { status: 'Triaged', weight: 0.25 },
-  { status: 'Investigating', weight: 0.25 },
-  { status: 'Enforcement', weight: 0.2 },
-  { status: 'Closed', weight: 0.1 },
+const TIER2_STATUS_DISTRIBUTION: { status: CaseStatus; weight: number }[] = [
+  { status: 'Triaged', weight: 0.35 },
+  { status: 'Investigating', weight: 0.40 },
+  { status: 'Enforcement', weight: 0.25 },
 ]
 
 const ACTION_STATUS_POOL: ActionStatus[] = ['Queued', 'Sent', 'In Progress']
 const ACTION_TYPE_POOL: ActionType[] = ['Takedown Notice', 'Registrar Report']
 const OWNERS = ['Sarah Chen', 'Marcus Johnson', 'Alex Rivera', 'Jordan Kim']
 
-function pickStatus(index: number, total: number): CaseStatus {
-  const position = index / total
+// === Helpers ===
+
+function pickTier2Status(index: number, total: number): CaseStatus {
+  const position = index / Math.max(total, 1)
   let cumulative = 0
-  for (const { status, weight } of CASE_STATUS_DISTRIBUTION) {
+  for (const { status, weight } of TIER2_STATUS_DISTRIBUTION) {
     cumulative += weight
     if (position < cumulative) return status
   }
-  return 'Closed'
+  return 'Enforcement'
 }
 
 function pickPriority(riskScore: number): Priority {
@@ -64,22 +65,24 @@ function inferDomainStatus(result: ScanResult): DomainStatus {
   return 'Active'
 }
 
-/** Generate a staggered date within the past N days */
-function staggeredDate(index: number, total: number, daysSpan: number): string {
-  const now = Date.now()
-  const span = daysSpan * 24 * 60 * 60 * 1000
-  const offset = (index / Math.max(total - 1, 1)) * span
-  return new Date(now - span + offset).toISOString()
-}
-
 // === Bridge ===
+
+interface BuildOptions {
+  scanMeta?: Omit<ScanMeta, 'totalActionable'>
+}
 
 /**
  * Map scan results into a complete AppState for the BPCC workflow.
- * Only High and Medium risk results create entities.
- * Cases are distributed across workflow statuses to populate the pipeline.
+ *
+ * Two-tier distribution:
+ * - Top 5 highest-risk → status "New", triageStatus "pending" (await AI triage)
+ * - Remaining → auto-distributed across Triaged/Investigating/Enforcement
  */
-export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]): AppState {
+export function buildAppStateFromScan(
+  results: ScanResult[],
+  vendors: Vendor[],
+  options?: BuildOptions,
+): AppState {
   const actionable = results.filter((r) => r.riskLevel === 'High' || r.riskLevel === 'Medium')
 
   // Sort: High risk first, then by score descending
@@ -87,6 +90,10 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
     if (a.riskLevel !== b.riskLevel) return a.riskLevel === 'High' ? -1 : 1
     return b.riskScore - a.riskScore
   })
+
+  const now = new Date().toISOString()
+  const top5 = actionable.slice(0, 5)
+  const rest = actionable.slice(5)
 
   const cases: Case[] = []
   const domains: Domain[] = []
@@ -96,13 +103,23 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
   let evidenceCounter = 1
   let enforcementCounter = 1
 
-  for (let i = 0; i < actionable.length; i++) {
-    const result = actionable[i]
-    const domainId = `DOM-S${String(i + 1).padStart(3, '0')}`
-    const caseId = `BG-S${String(i + 1).padStart(3, '0')}`
-    const status = pickStatus(i, actionable.length)
-    const createdAt = staggeredDate(i, actionable.length, 14)
-    const now = new Date().toISOString()
+  function processResult(
+    result: ScanResult,
+    index: number,
+    tier: 'top5' | 'rest',
+    restIndex: number,
+  ) {
+    const globalIndex = tier === 'top5' ? index : index + top5.length
+    const domainId = `DOM-S${String(globalIndex + 1).padStart(3, '0')}`
+    const caseId = `BG-S${String(globalIndex + 1).padStart(3, '0')}`
+
+    // Tier determines status and triage
+    const status: CaseStatus = tier === 'top5'
+      ? 'New'
+      : pickTier2Status(restIndex, rest.length)
+
+    const isAutoTriaged = tier === 'rest'
+    const owner = isAutoTriaged ? OWNERS[restIndex % OWNERS.length] : ''
 
     // Extract registrar from RDAP signal if available
     const rdapSignal = result.signals.find((s) => s.type === 'rdap')
@@ -135,21 +152,17 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
       notes: result.analystSummary,
       actionLog: [
         {
-          id: `LOG-S${String(i + 1).padStart(3, '0')}`,
+          id: `LOG-S${String(globalIndex + 1).padStart(3, '0')}`,
           action: 'Detected via Live Scan',
           performedBy: 'System',
-          performedAt: createdAt,
+          performedAt: now,
         },
       ],
-      lastFlaggedAt: createdAt,
+      lastFlaggedAt: now,
     })
 
     // --- Case ---
     const threatType = inferThreatType(result)
-    const isAssigned = status !== 'New'
-    const owner = isAssigned ? OWNERS[i % OWNERS.length] : ''
-
-    // Generate AI summary for the case
     const aiSummary = `Automated analysis detected ${result.domain} as a potential ${threatType.toLowerCase()} threat targeting ${result.brandDomain}. ${result.analystSummary} Risk score: ${result.riskScore}/100.`
     const aiSuggestedAction = result.recommendedAction
 
@@ -165,12 +178,13 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
       summary: `Live scan detected suspicious domain variant ${result.domain} (${result.generationMethod}) targeting ${result.brandDomain}. ${riskFlags.join('. ')}.`,
       aiSummary,
       aiSuggestedAction,
-      createdAt,
+      createdAt: now,
       updatedAt: now,
-      triagedAt: ['Triaged', 'Investigating', 'Enforcement', 'Closed'].includes(status) ? createdAt : null,
-      closedAt: status === 'Closed' ? now : null,
+      triagedAt: isAutoTriaged ? now : null,
+      closedAt: null,
       linkedDomainId: domainId,
       notes: [],
+      triageStatus: tier === 'top5' ? 'pending' : undefined,
     })
 
     // --- Evidence (one per enrichment signal) ---
@@ -189,22 +203,22 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
         caseId,
         type: evidenceType,
         value: `${signal.label}: ${signal.value}`,
-        capturedAt: createdAt,
+        capturedAt: now,
       })
     }
 
-    // --- Enforcement Actions (for ~40% of Investigating/Enforcement cases) ---
+    // --- Enforcement Actions (for rest tier: Investigating/Enforcement cases) ---
     if (
+      tier === 'rest' &&
       (status === 'Investigating' || status === 'Enforcement') &&
-      i % 3 !== 2 && // roughly 66% of eligible = ~40% of total
+      restIndex % 3 !== 2 &&
       vendors.length > 0
     ) {
-      const vendor = vendors[i % vendors.length]
-      const actionStatus = ACTION_STATUS_POOL[i % ACTION_STATUS_POOL.length]
-      const actionType = ACTION_TYPE_POOL[i % ACTION_TYPE_POOL.length]
-      const requestedAt = createdAt
+      const vendor = vendors[restIndex % vendors.length]
+      const actionStatus = ACTION_STATUS_POOL[restIndex % ACTION_STATUS_POOL.length]
+      const actionType = ACTION_TYPE_POOL[restIndex % ACTION_TYPE_POOL.length]
       const dueAt = new Date(
-        new Date(requestedAt).getTime() + vendor.slaHours * 3600000,
+        Date.now() + vendor.slaHours * 3600000,
       ).toISOString()
 
       enforcementActions.push({
@@ -213,7 +227,7 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
         vendorId: vendor.id,
         actionType,
         status: actionStatus,
-        requestedAt,
+        requestedAt: now,
         dueAt,
         resolvedAt: null,
         outcome: null,
@@ -222,5 +236,16 @@ export function buildAppStateFromScan(results: ScanResult[], vendors: Vendor[]):
     }
   }
 
-  return { cases, domains, evidence, vendors, enforcementActions }
+  // Process top 5 (triage-pending)
+  top5.forEach((result, i) => processResult(result, i, 'top5', 0))
+
+  // Process rest (auto-distributed)
+  rest.forEach((result, i) => processResult(result, i, 'rest', i))
+
+  // Build scan metadata
+  const scanMeta: ScanMeta | undefined = options?.scanMeta
+    ? { ...options.scanMeta, totalActionable: actionable.length }
+    : undefined
+
+  return { cases, domains, evidence, vendors, enforcementActions, scanMeta }
 }

@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-BUILD — Phase F (Live Scan + Threat Intel + Smart Scan) complete. Next: Phase D (Ship) or Phase G.
+BUILD — Phase G (Scan-First Rework) complete. Next: Phase D (Ship) or further polish.
 
 ## Lifecycle
 
@@ -103,6 +103,23 @@ Adds a Live Scan page that generates suspicious domain variants, enriches them w
 - [x] **F13: Smart scan — funnel progress UX** — `ScanProgress` component shows "Probing DNS... X/Y" → transition message → "Enriching active domains... X/N". Replaces single progress bar.
 - [x] **F14: Smart scan — suggested targets** — 10 commonly-attacked brand chips (PayPal, Coinbase, Chase, Microsoft, BofA, Instagram, MetaMask, Amazon, Wells Fargo, Netflix). Click fills input.
 
+## Build Tasks — Phase G: Scan-First Rework + Dashboard Overhaul
+
+Flipped the app workflow: Live Scan is the entry point, no seed data. Workflow pages gated behind scan data. AI triage on the dashboard. Scoring overhaul for realistic differentiation. Dashboard rebuilt with 9 data visualizations. Full animation polish pass.
+
+- [x] **G1: Foundation** — Empty default state, vendors extracted to `src/data/vendors.ts`, `triageStatus` + `scanMeta` added to types, triage actions in store, `seed.ts` deleted.
+- [x] **G2: Gating + Navigation** — `RequireScanData` route guard, workflow pages gated, Live Scan promoted to top of nav, "Scan to unlock" hint on disabled items.
+- [x] **G3: Scan Bridge Rework** — Two-tier distribution: top 5 = New/pending triage, rest = auto-distributed across Triaged/Investigating/Enforcement. Staggered dates removed. `scanMeta` included.
+- [x] **G4: AI Triage on Dashboard** — Interactive one-at-a-time card review with slide animations. Agree auto-creates enforcement action. Manual Review flags for human. Progress bar with pulsing active segment. Resolved items in compact list.
+- [x] **G5: Dashboard Rethink** — Removed PeriodTabs, ThreatsTrendChart, mockInsights. Added: Scan Summary Banner, simplified StatsStrip, dynamic AI Triage, Risk Distribution, Scan Funnel, Signal Coverage Radar, Vendor Enforcement Pipeline, Evidence Sources, Risk vs Similarity Scatter, Attack Vectors donut, Recent Activity.
+- [x] **G6: Scoring Overhaul** — Compound signal bonuses (DNS+cert, DNS+cert+recent, homoglyph+DNS, keyword+DNS, etc.). Boosted keyword/similarity contributions. Lowered High threshold to 55. Signal-aware `getRecommendedAction` with ~8 distinct recommendations. Richer `generateAnalystSummary` with varied lead sentences. Synthetic threat intel for domains with strong real signals but no API keys.
+- [x] **G7: Variant cap** — Reduced from 80 to 20 variants, prioritizing high-threat methods (homoglyphs, keywords) over low-threat ones.
+- [x] **G8: Enrichment ticker** — Rotating status ticker during scan showing enrichment pipeline steps (DNS, RDAP, crt.sh, Spamhaus, URLhaus, OTX, similarity, keyword analysis, compound scoring, AI summaries) with fade-slide animation.
+- [x] **G9: Sample data** — Pre-built `sample-scan.ts` with 15 results for quick-load demo. "Load sample data" button on Live Scan empty state.
+- [x] **G10: About page update** — Rewrote hero, workflow strip, demonstrates section, what to look at, architecture, scope decisions, and CTA for scan-first workflow. Context-aware CTA (scan vs dashboard). "Clear Data" replaces "Reset Demo".
+- [x] **G11: Animation polish** — Count-up stat numbers, staggered funnel bars, Recharts mount animations, bar hover effects (activeBar), donut interactive legends (scale+glow), Risk Distribution hover tracking, Scan Funnel bar grow+glow on hover, Recent Activity staggered entrance + hover accent bar, stat card hover lift + accent bar, AI Triage card entrance + progress pulse + button glow, NavRail logo/user block hover effects.
+- [x] **G12: Cleanup** — Deleted `PeriodTabs.tsx`, deleted `seed.ts`. Updated docs.
+
 ---
 
 ## Significant Mid-Build Changes
@@ -112,6 +129,7 @@ Adds a Live Scan page that generates suspicious domain variants, enriches them w
 - **Layout restructure** — Removed amber canvas frame. Now full-viewport CSS Grid: 260px sidebar + 64px topbar + scrollable main. Added TopBar component, evolved NavRail into full sidebar with icons, sections, logo, user block.
 - **Charting upgrade (Phase E)** — Replaced CSS-based charts with Recharts (BarChart, PieChart, grouped bars). Added shadcn ChartContainer/ChartConfig for theming. Added chart-palette.ts for color-mix derived series colors.
 - **Dashboard import (Phase E)** — Imported shadcnblocks dashboard1 + dashboard4 as raw material. Extracted patterns (pagination, filter chips, stat cards, row actions, status icons, chart tooltips). Deleted source files after extraction.
+- **Scan-first rework (Phase G)** — Removed seed data entirely. Live Scan is the entry point; workflow pages gated behind scan data. AI triage on dashboard (one-at-a-time cards). Scoring overhauled with compound bonuses and synthetic threat intel. Dashboard rebuilt with 9 visualizations (bars, donuts, radar, scatter). Full animation polish pass across all components.
 
 ---
 

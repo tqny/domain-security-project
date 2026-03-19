@@ -218,3 +218,36 @@
         @apply font-sans antialiased;
     }
 }
+
+/* Scan ticker fade-slide animation */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Investigation: timeline connector line grows downward */
+@keyframes timeline-line-grow {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+}
+
+/* Investigation: signal strength bar pops in */
+@keyframes signal-bar-grow {
+    from { transform: scaleY(0); opacity: 0; }
+    to   { transform: scaleY(1); opacity: 1; }
+}
+
+/* Investigation: latest timeline dot pulse */
+.timeline-dot-pulse {
+    animation: dot-pulse 2s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232, 168, 56, 0.4); }
+    50%      { box-shadow: 0 0 0 5px rgba(232, 168, 56, 0); }
+}

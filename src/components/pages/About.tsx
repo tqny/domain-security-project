@@ -1,17 +1,17 @@
 import { useAppState } from '@/data/store'
 import { Button } from '@/components/ui/button'
-import { RotateCcw, ShieldCheck, ChevronRight, LayoutDashboard } from 'lucide-react'
+import { RotateCcw, ShieldCheck, ChevronRight, Radar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 // === About Page ===
 
 export default function About() {
-  const { resetToSeedData } = useAppState()
+  const { resetData, hasData } = useAppState()
   const navigate = useNavigate()
 
-  function handleReset() {
-    if (window.confirm('Reset all data to the original demo state? Any changes you made will be lost.')) {
-      resetToSeedData()
+  function handleClearData() {
+    if (window.confirm('Clear all scan data? You will need to run a new scan to repopulate the workflow.')) {
+      resetData()
     }
   }
 
@@ -26,7 +26,7 @@ export default function About() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">About This Project</h1>
           <p className="mt-0.5 text-sm text-text-secondary">A portfolio piece by Tony Mikityuk</p>
           <p className="mt-3 text-sm text-text-secondary leading-relaxed max-w-3xl">
-            This dashboard simulates the daily operating environment for a Brand Protection Program Manager at a major financial institution. It demonstrates end-to-end workflow — from AI-powered threat detection and DNS analysis, through UDRP filings and vendor enforcement coordination, to executive-level reporting — all at the scale Bank of America operates.
+            This dashboard is a working brand protection tool. Enter any brand domain and Sentinel generates typosquat variants, probes DNS, enriches with RDAP/certificate/threat intelligence data, scores risk, and populates the full enforcement workflow — from AI-powered triage through vendor coordination and resolution.
           </p>
         </div>
       </div>
@@ -36,13 +36,17 @@ export default function About() {
         <h2 className="text-base font-semibold text-foreground mb-5">The Brand Protection Workflow</h2>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {[
-            { label: 'Detection', color: 'bg-info', description: 'ML models scan domains daily, flagging threats with predictive classification.' },
-            { label: 'Triage', color: 'bg-primary', description: 'Threats are scored, prioritized, and assigned. AI confidence determines auto-triage eligibility.' },
-            { label: 'Investigation', color: 'bg-[#9333ea]', description: 'Evidence collection: WHOIS, DNS records, SSL certs, screenshots, and AI classification.' },
-            { label: 'Enforcement', color: 'bg-warning', description: 'Registrar takedowns, platform reports, and paid search complaints via vendor partners.' },
-            { label: 'Resolution', color: 'bg-success', description: 'Threat neutralized, domain secured or transferred, executive report generated.' },
+            { label: 'Scan', color: 'bg-info', description: 'Live Scan generates domain variants using 8 techniques (homoglyphs, keywords, TLD swaps, typos), then enriches via DNS, RDAP, crt.sh, Spamhaus, and URLhaus.' },
+            { label: 'Triage', color: 'bg-primary', description: 'Top 5 threats surface in an interactive AI Triage card. Review AI summaries and either agree (auto-escalate) or flag for manual review.' },
+            { label: 'Investigation', color: 'bg-[#9333ea]', description: 'Evidence collection: WHOIS snapshots, DNS records, SSL certificates, threat intel reports, and AI-generated analyst summaries.' },
+            { label: 'Enforcement', color: 'bg-warning', description: 'Registrar takedowns, platform reports, and legal escalations coordinated across 4 vendor partners with SLA tracking.' },
+            { label: 'Resolution', color: 'bg-success', description: 'Threat neutralized, domain suspended or transferred, case closed with full audit trail.' },
           ].map((step, i) => (
-            <div key={step.label} className="flex items-start gap-3 md:flex-col md:items-start">
+            <div
+              key={step.label}
+              className="flex items-start gap-3 md:flex-col md:items-start rounded-lg p-2 -m-2 transition-all duration-[var(--duration-fast)] hover:bg-surface-hover hover:-translate-y-0.5 animate-in fade-in slide-in-from-bottom-1 duration-300"
+              style={{ animationDelay: `${i * 80}ms`, animationFillMode: 'backwards' }}
+            >
               <div className="flex items-center gap-2 shrink-0">
                 <div className={`size-2.5 rounded-full ${step.color}`} />
                 <span className="text-sm font-semibold text-foreground">{step.label}</span>
@@ -62,14 +66,18 @@ export default function About() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
           {[
-            { title: 'Domains & DNS', desc: 'Portfolio management of monitored domains, registrar operations, DNSSEC, registry locks, and AI-powered DNS threat detection.' },
-            { title: 'Case Management', desc: 'Full case lifecycle from detection through resolution, with evidence collection, AI analysis, and priority-based triage.' },
-            { title: 'Vendor Enforcement', desc: 'Coordination across 4 enforcement partners with SLA tracking, status controls, and performance metrics.' },
-            { title: 'AI Integration', desc: 'Predictive scoring, auto-classification, and AI-generated summaries reflect emerging AI-driven brand protection.' },
+            { title: 'Live Domain Scanning', desc: 'Client-side variant generation + multi-source enrichment pipeline (DNS, RDAP, crt.sh, Spamhaus DBL, URLhaus, OTX). Compound risk scoring with signal-aware AI summaries.' },
+            { title: 'AI Triage', desc: 'Interactive one-at-a-time review of top threats. Agree auto-creates enforcement actions; Manual Review flags for human investigation. Progress-tracked with slide animations.' },
+            { title: 'Case Management', desc: 'Full case lifecycle from scan detection through resolution, with evidence collection, AI analysis, priority-based assignment, and cross-entity navigation.' },
+            { title: 'Vendor Enforcement', desc: 'Coordination across 4 enforcement partners with SLA tracking, due date calculations, status controls, and performance metrics.' },
             { title: 'Cross-Entity Linking', desc: 'Cases link to domains, domains link to enforcement actions — every entity is navigable across the workflow.' },
-            { title: 'Executive Reporting', desc: 'KPI dashboards, trend analysis, and channel breakdown — the kind of reporting leadership actually reviews.' },
-          ].map((item) => (
-            <div key={item.title}>
+            { title: 'Operational Dashboard', desc: 'Scan summary banner, risk distribution, case pipeline, threat breakdown, and real-time activity feed — all driven by live scan data.' },
+          ].map((item, i) => (
+            <div
+              key={item.title}
+              className="rounded-lg p-3 -m-3 transition-all duration-[var(--duration-fast)] hover:bg-surface-hover hover:-translate-y-0.5 animate-in fade-in slide-in-from-bottom-1 duration-300"
+              style={{ animationDelay: `${i * 70}ms`, animationFillMode: 'backwards' }}
+            >
               <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
               <p className="mt-1 text-xs text-text-secondary leading-relaxed">{item.desc}</p>
             </div>
@@ -87,10 +95,11 @@ export default function About() {
           </div>
           <div className="space-y-2">
             {[
-              { label: 'Operations Overview', desc: 'Executive briefing, KPIs, AI insights, pipeline', path: '/' },
-              { label: 'Case Queue', desc: 'Filterable queue with channel + priority filters', path: '/queue' },
-              { label: 'Investigation', desc: 'Deep-dive: evidence timeline, AI analysis output', path: '/investigation' },
-              { label: 'Domain Portfolio', desc: 'DNS security controls, AI risk scores, registrar ops', path: '/domains' },
+              { label: 'Live Scan', desc: 'Start here — scan any brand, watch the enrichment pipeline, push results', path: '/live-scan' },
+              { label: 'Operations Overview', desc: 'Scan summary, AI Triage card, risk distribution, case pipeline', path: '/' },
+              { label: 'Case Queue', desc: 'Filterable queue with priority + status filters, detail panels', path: '/queue' },
+              { label: 'Investigation', desc: 'Deep-dive: evidence timeline, AI analysis, enforcement decisions', path: '/investigation' },
+              { label: 'Domain Portfolio', desc: 'DNS security controls, risk flags, registrar action logs', path: '/domains' },
               { label: 'Enforcement Tracker', desc: 'SLA tracking, vendor coordination, action pipeline', path: '/enforcement' },
             ].map((item) => (
               <button
@@ -118,7 +127,7 @@ export default function About() {
           <div className="mb-4">
             <p className="text-xs text-text-secondary mb-2.5">Tech Stack</p>
             <div className="flex flex-wrap gap-2">
-              {['React 19 + TypeScript', 'Vite', 'Tailwind CSS v4', 'shadcn/ui + shadcnblocks', 'Recharts', 'Geist font family'].map((t) => (
+              {['React 19 + TypeScript', 'Vite', 'Tailwind CSS v4', 'shadcn/ui', 'Recharts', 'Geist font family'].map((t) => (
                 <span key={t} className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-text-secondary">{t}</span>
               ))}
             </div>
@@ -128,11 +137,11 @@ export default function About() {
             <p className="text-xs text-text-secondary mb-2.5">Key Design Decisions</p>
             <div className="space-y-2">
               {[
-                'Centralized TypeScript data model with strict types for BofA threat taxonomy',
-                'React Context for cross-page state (selected case, vendor data, reset)',
-                'AI prediction model integrated at case and domain level',
-                'Torch Dark Gold theme with warm-tinted dark mode',
-                'Seed data shaped for real API interchangeability — zero structural changes needed',
+                'Scan-first workflow: Live Scan → AI Triage → full workflow populated',
+                'Multi-source enrichment: DNS, RDAP, crt.sh, Spamhaus, URLhaus, OTX',
+                'Compound risk scoring with signal-aware recommendations',
+                'React Context + localStorage for persistent state across sessions',
+                'Torch Dark Gold design system with amber accent rationing',
               ].map((d) => (
                 <div key={d} className="flex gap-2 text-xs text-text-secondary">
                   <span className="text-success mt-0.5 shrink-0">◉</span>
@@ -152,13 +161,17 @@ export default function About() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
           {[
-            { title: 'BofA branding, realistic data', desc: 'Demonstrates domain knowledge specific to how a Program Manager at a major bank would operate at global scale.' },
-            { title: 'DNS/domain-heavy focus', desc: "Matches the JD's primary responsibility: domain management, registrar operations, and DNS-based threat solutions." },
-            { title: 'Seed data, no backend', desc: 'Data model is shaped for real API interchangeability. Swapping seed data for live endpoints requires zero structural changes.' },
-            { title: 'AI-prominent UX', desc: "AI scoring, auto-classification, and model performance metrics reflect the emphasis on AI-driven brand protection." },
-            { title: 'Executive briefing strip', desc: "The dashboard calls out 'executive-level communications and reports' — the Overview page demonstrates this thinking." },
-          ].map((item) => (
-            <div key={item.title}>
+            { title: 'Any brand, live data', desc: 'Scan any domain — the enrichment pipeline hits real public APIs. No hardcoded data. Sample data available for quick demos.' },
+            { title: 'DNS/domain-heavy focus', desc: 'Domain variant generation, DNS resolution, RDAP registration, certificate transparency, and threat intelligence — the core of brand protection operations.' },
+            { title: 'Client-side, no backend', desc: 'All scanning and enrichment runs in the browser via public APIs (dns.google, rdap.org, crt.sh, Spamhaus DNS). No server required.' },
+            { title: 'AI-driven triage UX', desc: 'AI scoring, signal-aware analyst summaries, and interactive triage flow demonstrate how AI augments (not replaces) human decision-making.' },
+            { title: 'Scan → workflow pipeline', desc: 'One scan populates every page: cases, domains, evidence, enforcement actions. The entire app is driven by real scan output.' },
+          ].map((item, i) => (
+            <div
+              key={item.title}
+              className="rounded-lg p-3 -m-3 transition-all duration-[var(--duration-fast)] hover:bg-surface-hover hover:-translate-y-0.5 animate-in fade-in slide-in-from-bottom-1 duration-300"
+              style={{ animationDelay: `${i * 70}ms`, animationFillMode: 'backwards' }}
+            >
               <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
               <p className="mt-1 text-xs text-text-secondary leading-relaxed">{item.desc}</p>
             </div>
@@ -170,26 +183,38 @@ export default function About() {
       <div className="rounded-xl border border-primary/20 bg-accent-muted p-8 text-center">
         <h2 className="text-lg font-semibold text-foreground">Ready to explore?</h2>
         <p className="mt-2 text-sm text-text-secondary max-w-md mx-auto">
-          Start with the Operations Overview, click into a case from the Queue, then follow it through Investigation and Enforcement.
+          {hasData
+            ? 'Your scan data is loaded. Explore the Dashboard, review cases in the Queue, or investigate individual threats.'
+            : 'Start with a Live Scan — pick a brand from the suggested targets, or enter any domain. The enrichment pipeline takes about 30 seconds.'
+          }
         </p>
-        <Button className="mt-5 gap-2" onClick={() => navigate('/')}>
-          <LayoutDashboard className="size-4" />
-          Go to Overview
+        <Button className="mt-5 gap-2" onClick={() => navigate(hasData ? '/' : '/live-scan')}>
+          {hasData ? (
+            <>
+              <Radar className="size-4" />
+              Go to Dashboard
+            </>
+          ) : (
+            <>
+              <Radar className="size-4" />
+              Run Live Scan
+            </>
+          )}
         </Button>
       </div>
 
-      {/* Reset Demo */}
+      {/* Clear Data */}
       <div className="rounded-xl border border-border bg-surface p-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-foreground">Reset demo data</div>
+            <div className="text-sm font-semibold text-foreground">Clear data</div>
             <p className="mt-1 text-sm text-text-secondary">
-              Restore all cases, domains, and enforcement actions to their original state.
+              Clear all scan data and reset the workflow. You'll need to run a new scan.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={handleReset}>
+          <Button variant="outline" size="sm" onClick={handleClearData}>
             <RotateCcw className="size-4 mr-1.5" />
-            Reset Demo
+            Clear Data
           </Button>
         </div>
       </div>

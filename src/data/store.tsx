@@ -16,7 +16,7 @@ import type {
   EnforcementAction,
   ActionType,
 } from '../types'
-import { generateSeedData } from './seed'
+import { defaultVendors } from './vendors'
 
 // === Actions ===
 
@@ -30,7 +30,25 @@ type Action =
   | { type: 'ADD_ENFORCEMENT_NOTE'; actionId: string; note: EnforcementNote }
   | { type: 'ADD_DOMAIN_ACTION_LOG'; domainId: string; entry: DomainActionLog }
   | { type: 'LOAD_SCAN_DATA'; payload: AppState }
+  | { type: 'TRIAGE_AGREE'; caseId: string }
+  | { type: 'TRIAGE_MANUAL_REVIEW'; caseId: string }
   | { type: 'RESET' }
+
+// === Owners pool for auto-assignment ===
+
+const OWNERS = ['Sarah Chen', 'Marcus Johnson', 'Alex Rivera', 'Jordan Kim']
+
+// === Empty state factory ===
+
+function emptyState(): AppState {
+  return {
+    cases: [],
+    evidence: [],
+    domains: [],
+    vendors: defaultVendors,
+    enforcementActions: [],
+  }
+}
 
 // === Reducer ===
 
@@ -127,8 +145,61 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'LOAD_SCAN_DATA':
       return action.payload
 
+    case 'TRIAGE_AGREE': {
+      const targetCase = state.cases.find((c) => c.id === action.caseId)
+      if (!targetCase) return state
+
+      // Auto-assign owner
+      const agreedCount = state.cases.filter((c) => c.triageStatus === 'agreed').length
+      const owner = OWNERS[agreedCount % OWNERS.length]
+
+      // Create enforcement action (Takedown Notice via primary vendor)
+      const vendor = state.vendors[0] // BrandShield Global
+      const eaId = `EA-T${String(state.enforcementActions.length + 1).padStart(3, '0')}`
+      const dueAt = new Date(Date.now() + (vendor?.slaHours ?? 24) * 3600000).toISOString()
+      const newAction: EnforcementAction = {
+        id: eaId,
+        caseId: action.caseId,
+        vendorId: vendor?.id ?? 'VND-001',
+        actionType: 'Takedown Notice',
+        status: 'Queued',
+        requestedAt: now,
+        dueAt,
+        resolvedAt: null,
+        outcome: null,
+        notes: [],
+      }
+
+      return {
+        ...state,
+        cases: state.cases.map((c) =>
+          c.id === action.caseId
+            ? {
+                ...c,
+                triageStatus: 'agreed' as const,
+                status: 'Enforcement' as const,
+                owner,
+                triagedAt: now,
+                updatedAt: now,
+              }
+            : c
+        ),
+        enforcementActions: [...state.enforcementActions, newAction],
+      }
+    }
+
+    case 'TRIAGE_MANUAL_REVIEW':
+      return {
+        ...state,
+        cases: state.cases.map((c) =>
+          c.id === action.caseId
+            ? { ...c, triageStatus: 'manual-review' as const, updatedAt: now }
+            : c
+        ),
+      }
+
     case 'RESET':
-      return generateSeedData()
+      return emptyState()
   }
 }
 
@@ -136,6 +207,7 @@ function appReducer(state: AppState, action: Action): AppState {
 
 interface AppContextValue {
   state: AppState
+  hasData: boolean
   updateCaseStatus: (caseId: string, status: CaseStatus) => void
   setCaseOwner: (caseId: string, owner: string) => void
   addCaseNote: (caseId: string, note: CaseNote) => void
@@ -145,7 +217,9 @@ interface AppContextValue {
   addEnforcementNote: (actionId: string, note: EnforcementNote) => void
   addDomainActionLog: (domainId: string, entry: DomainActionLog) => void
   loadScanData: (newState: AppState) => void
-  resetToSeedData: () => void
+  triageCaseAgree: (caseId: string) => void
+  triageCaseManualReview: (caseId: string) => void
+  resetData: () => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -161,9 +235,9 @@ function loadState(): AppState {
       return JSON.parse(saved) as AppState
     }
   } catch {
-    // Fall through to seed data
+    // Fall through to empty state
   }
-  return generateSeedData()
+  return emptyState()
 }
 
 function saveState(state: AppState) {
@@ -185,6 +259,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value: AppContextValue = {
     state,
+    hasData: state.cases.length > 0,
 
     updateCaseStatus(caseId, status) {
       dispatch({ type: 'UPDATE_CASE_STATUS', caseId, status })
@@ -242,7 +317,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'LOAD_SCAN_DATA', payload: newState })
     },
 
-    resetToSeedData() {
+    triageCaseAgree(caseId) {
+      dispatch({ type: 'TRIAGE_AGREE', caseId })
+    },
+
+    triageCaseManualReview(caseId) {
+      dispatch({ type: 'TRIAGE_MANUAL_REVIEW', caseId })
+    },
+
+    resetData() {
       dispatch({ type: 'RESET' })
     },
   }
