@@ -770,15 +770,15 @@ export default function LiveScan() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Live Scan</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Live Scan</h1>
           <p className="mt-1 text-sm text-text-secondary">
             Generate and enrich suspicious domain variants
           </p>
         </div>
 
         {/* Scan Form */}
-        <div className="rounded-xl border border-border bg-surface p-6">
-          <div className="flex items-end gap-4">
+        <div className="rounded-xl border border-border bg-surface p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
             <div className="flex-1">
               <label htmlFor="brand-domain" className="block text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
                 Brand Domain
@@ -799,7 +799,7 @@ export default function LiveScan() {
             <Button
               onClick={() => handleScan()}
               disabled={isScanning || !domainInput.trim()}
-              className="h-10 px-6"
+              className="h-10 w-full sm:w-auto px-6"
             >
               {isScanning ? (
                 <>
@@ -870,7 +870,7 @@ export default function LiveScan() {
 
         {/* Action Bar */}
         {scanComplete && hasResults && (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             {pushed ? (
               <>
                 <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-muted px-4 py-2">
@@ -879,30 +879,30 @@ export default function LiveScan() {
                 </div>
                 <Button
                   variant="outline"
-                  className="h-9 px-5"
+                  className="h-9 px-5 w-full sm:w-auto"
                   onClick={() => navigate('/')}
                 >
                   Go to Dashboard
                 </Button>
               </>
             ) : (
-              <>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Button
                   onClick={() => setShowConfirm(true)}
-                  className="h-9 px-5"
+                  className="h-10 sm:h-9 px-5 w-full sm:w-auto"
                   disabled={liveStats.highRisk + liveStats.mediumRisk === 0}
                 >
                   <Zap className="size-4 mr-2" />
                   Push to Sentinel
                 </Button>
-                <span className="text-xs text-muted-foreground ml-2">
+                <span className="text-xs text-muted-foreground">
                   {liveStats.highRisk + liveStats.mediumRisk} actionable results will be pushed
                 </span>
-              </>
+              </div>
             )}
             <Button
               variant="outline"
-              className="h-9 px-5"
+              className="h-10 sm:h-9 px-5 w-full sm:w-auto"
               onClick={() => exportCsv(session.results.filter((r) => r.enrichmentStatus === 'complete'))}
             >
               <Download className="size-4 mr-2" />

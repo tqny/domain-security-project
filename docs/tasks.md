@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-SHIPPED — All build phases (A–G) and ship phase (D) complete. Live at https://tqny.github.io/domain-security-project/
+SHIPPED + POLISHED — All build phases (A–G), ship phase (D), and POLISH phase complete. Live at https://tqny.github.io/domain-security-project/
 
 ## Lifecycle
 
@@ -148,12 +148,13 @@ _To be planned in detail when BUILD is complete. High-level:_
 
 ---
 
-## POLISH Phase Tasks (post-DATA)
+## POLISH Phase Tasks (complete)
 
-_To be planned when DATA is complete. High-level:_
-
-- [ ] Responsive design pass
-- [ ] Accessibility audit
-- [ ] Performance optimization
-- [ ] Final design convergence
-- [ ] README final pass
+- [x] **P1: Mobile shell** — Responsive Layout with separate desktop (CSS Grid) and mobile (flexbox) paths. MobileNav sheet drawer with full navigation, closes on route change. TopBar with hamburger on mobile, hidden search on small screens, responsive padding.
+- [x] **P2: Page-level responsive** — All page titles scale `text-2xl sm:text-3xl`. LiveScan form stacks vertically with full-width scan button on mobile. Investigation hero banner stacks metadata above risk gauge, case selector full-width, AI summary and scan intel strips reflow. Overview spacing responsive. All existing grids confirmed working (`grid-cols-1 lg:grid-cols-*`).
+- [x] **P3: Shared component responsive** — DetailPanel full-screen on mobile with backdrop overlay and body scroll lock. FilterBar full-width search on mobile with taller touch targets. DataTable min-width for horizontal scroll. Pagination buttons 36px on mobile (44px touch target met).
+- [x] **P4: Touch targets** — Pagination buttons, filter inputs, search inputs all meet 44px minimum on mobile. Hamburger button 40px hit area.
+- [x] **P5: Accessibility** — Skip-to-content link (visible on keyboard focus). DetailPanel focus management (auto-focus close button, Escape to close, `role="dialog"`, `aria-label`). Body scroll lock on panel/drawer open.
+- [x] **P6: Performance** — All 7 pages lazy-loaded via `React.lazy` + `Suspense`. Initial bundle reduced from 1,014 KB to 327 KB (68% reduction). Suspense fallback inside Layout so shell renders instantly.
+- [x] **P7: Notifications bell** — Bell icon connected to pending triage count. Badge shows count, click opens dropdown listing pending cases. Empty state shows "No notifications". Clicking items navigates to Dashboard.
+- [x] **P8: LiveScan action bar** — Push to Sentinel and Export CSV buttons stack full-width on mobile. "Actionable results" text flows cleanly below button.

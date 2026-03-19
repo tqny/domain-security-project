@@ -376,7 +376,7 @@ export default function Domains() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Domain Portfolio</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Domain Portfolio</h1>
           <p className="mt-1 text-sm text-text-secondary">
             Monitored domains and security posture — {filteredDomains.length} of {state.domains.length} domains
           </p>
