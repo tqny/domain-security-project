@@ -242,6 +242,7 @@ function DomainDetail({ domain }: { domain: Domain }) {
         )}
         <div className="flex gap-2">
           <textarea
+            aria-label="Add action log entry"
             value={logText}
             onChange={(e) => setLogText(e.target.value)}
             placeholder="Add a log entry..."

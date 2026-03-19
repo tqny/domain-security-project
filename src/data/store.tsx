@@ -36,7 +36,7 @@ type Action =
 
 // === Owners pool for auto-assignment ===
 
-const OWNERS = ['Sarah Chen', 'Marcus Johnson', 'Alex Rivera', 'Jordan Kim']
+export const OWNERS = ['Sarah Chen', 'Marcus Johnson', 'Alex Rivera', 'Jordan Kim']
 
 // === Empty state factory ===
 

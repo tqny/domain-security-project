@@ -1,41 +1,60 @@
 # Brand Protection Control Center
 
-A portfolio-grade dashboard simulating the end-to-end workflow of a Brand Protection Program Manager — threat intake, investigation, domain management, vendor enforcement, and operational reporting — on behalf of Bank of America.
+A portfolio-grade domain threat intelligence dashboard that scans for suspicious domains in real time, enriches them with public threat feeds, and routes findings through a full case management workflow — modeled after how companies like PhishLabs and Allure Security operate at scale.
 
-## What This Is
+**[Live Demo](https://tqny.github.io/domain-security-project/)**
 
-A desktop-first web application built with React, TypeScript, and Vite that demonstrates how brand protection operations actually work: threats are identified, triaged into cases, investigated for evidence, coordinated with enforcement vendors, and tracked through resolution.
+## What This Does
 
-This is not a tutorial project. It simulates a real operational workflow with realistic data targeting a real brand, cross-entity relationships, and the kind of information density that actual internal tools require.
+Enter a brand domain (e.g., `paypal.com`). The scanner:
+
+1. **Generates** 20+ suspicious variants using 8 techniques (homoglyphs, typosquatting, TLD swaps, keyword injection, etc.)
+2. **Probes DNS** via Google DoH to find which variants actually resolve
+3. **Enriches** active domains with real threat intelligence — RDAP registration, Certificate Transparency logs (crt.sh), Spamhaus DBL, URLhaus, AlienVault OTX
+4. **Scores risk** using compound signal analysis (DNS + fresh cert + recent registration = high confidence threat)
+5. **Generates AI analyst summaries** with signal-aware narrative and recommended actions
+6. **Pushes results into Sentinel** — a full case management workflow with triage, investigation, enforcement tracking, and executive dashboard
 
 ## Why It Exists
 
-Built as a portfolio artifact to demonstrate:
-- Deep understanding of brand protection / domain security operations
-- Ability to translate complex workflows into clear, usable product surfaces
-- Engineering judgment: clean React/TypeScript architecture, modular components, typed data model
+Built as a portfolio artifact targeting brand protection and domain security roles. Demonstrates:
+
+- End-to-end understanding of the domain threat detection pipeline (the same pipeline companies charge six figures/year for)
+- Ability to translate complex security workflows into clear, usable product surfaces
+- Engineering judgment: typed data model, real API integrations, composite scoring, modular React/TypeScript architecture
 - AI-assisted development fluency (built with Claude Code)
 
 Part of [Tony Mikityuk's portfolio](https://tqny.github.io/Tony-s-Site/).
 
-## What's In v1
+## The Workflow
 
-- **Operations Overview** — Stat cards, case pipeline chart, threat distribution donut, recent activity
-- **Case Queue** — Searchable/filterable threat intake table with detail panels, status controls, notes
-- **Investigation** — Case deep-dive with signal timeline, evidence, AI analysis, decision controls
-- **Domain Portfolio** — Monitored domains with security indicators, risk flags, registrar action logs
-- **Enforcement Tracker** — Vendor coordination with SLA tracking, status controls, workload summary
-- **About This Project** — In-product reviewer page with workflow explanation and Reset Demo
-- **Cross-page navigation** — Linked entities, breadcrumbs, nav badges with live counts
+| Stage | What Happens |
+|---|---|
+| **Live Scan** | Domain variant generation, DNS probing, multi-source enrichment, risk scoring |
+| **AI Triage** | Dashboard presents top threats one at a time for agree/review decisions |
+| **Investigation** | Case deep-dive with evidence breakdown, signal timeline, risk gauge, scan intel |
+| **Case Queue** | Searchable/filterable case management with status controls and owner assignment |
+| **Domains** | Monitored domain portfolio with security indicators and registrar action logs |
+| **Enforcement** | Vendor coordination with SLA tracking, takedown status, and workload summary |
+| **Dashboard** | 9 data visualizations — risk distribution, scan funnel, signal radar, attack vectors, and more |
 
 ## Tech Stack
 
 - React 19 + Vite + TypeScript
 - Tailwind CSS v4 + shadcn/ui (Torch Dark Gold design system)
+- Recharts for data visualization
 - React Router v7 for navigation
-- React Context + localStorage for state persistence
-- CSS-based charts (no charting library)
+- React Context + sessionStorage for state
 - Lucide React for icons, Geist for typography
+
+### Enrichment Sources (real APIs, no mocks)
+
+- Google DNS-over-HTTPS (dns.google)
+- RDAP via rdap.org
+- Certificate Transparency via crt.sh
+- Spamhaus Domain Blocklist (DNS-over-HTTPS)
+- URLhaus (abuse.ch)
+- AlienVault OTX
 
 ## Running Locally
 
@@ -44,19 +63,22 @@ npm install
 npm run dev
 ```
 
+Or load sample data from the Live Scan page to explore the workflow without running a scan.
+
 ## Project Structure
 
 ```
 src/
-├── types/          # TypeScript interfaces (Case, Domain, Vendor, etc.)
-├── data/           # Seed data (BofA threats) + state management
+├── types/          # TypeScript interfaces (Case, Domain, Vendor, ScanResult, etc.)
+├── data/           # Sample data, vendors, state management
+├── lib/            # Scan engine, enrichment pipeline, scan-to-case bridge
 ├── components/
-│   ├── shell/      # Sidebar, TopBar, Layout (CSS Grid)
+│   ├── shell/      # NavRail, TopBar, Layout, RequireScanData gate
 │   ├── shared/     # DataTable, DetailPanel, FilterBar, StatusChip
-│   └── pages/      # One component per route
+│   └── pages/      # LiveScan, Overview, Queue, Investigation, Domains, Enforcement, About
 └── styles/         # Torch Dark Gold design tokens
 ```
 
 ---
 
-*See `docs/tasks.md` for build status. See the in-product About page for full project context.*
+*Built by [Tony Mikityuk](https://tqny.github.io/Tony-s-Site/). See the in-product About page for full project context.*

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppState } from '@/data/store'
+import { useAppState, OWNERS } from '@/data/store'
 import type { Case, CaseStatus, Priority } from '@/types'
 import DataTable, { type Column, type SortState } from '@/components/shared/DataTable'
 import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
@@ -223,8 +223,9 @@ function CaseDetail({ caseData }: { caseData: Case }) {
           className="h-8 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
         >
           <option value="">Unassigned</option>
-          <option value="Sarah Chen">Sarah Chen</option>
-          <option value="Marcus Johnson">Marcus Johnson</option>
+          {OWNERS.map((name) => (
+            <option key={name} value={name}>{name}</option>
+          ))}
         </select>
       </DetailSection>
 
