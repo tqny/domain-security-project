@@ -5,6 +5,7 @@ import type { ScanResult, ScanSession, ScanPhase, RiskLevel } from '@/types/scan
 import { generateVariants } from '@/lib/scan-engine'
 import { dnsProbeBatch, enrichResolvedBatch } from '@/lib/enrichment'
 import { buildAppStateFromScan } from '@/lib/scan-bridge'
+import { sampleScanResults, SAMPLE_BRAND, SAMPLE_TOTAL_PROBED, SAMPLE_TOTAL_RESOLVED } from '@/data/sample-scan'
 import DataTable, { type Column, type SortState } from '@/components/shared/DataTable'
 import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
 import DetailPanel from '@/components/shared/DetailPanel'
@@ -284,10 +285,10 @@ function ConfirmModal({ open, onConfirm, onCancel }: { open: boolean; onConfirm:
           <h3 className="text-lg font-semibold text-foreground">Push to Sentinel</h3>
         </div>
         <p className="text-sm text-text-secondary mb-2">
-          This will replace existing demo data with scan-generated cases, domains, evidence, and enforcement actions.
+          Push scan results into the Sentinel workflow? This will create cases, domains, evidence, and enforcement actions from your scan.
         </p>
         <p className="text-xs text-muted-foreground mb-6">
-          The existing data can be restored anytime with Reset Demo on the About page.
+          The top 5 highest-risk domains will need AI triage review on the Dashboard.
         </p>
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={onCancel}>Cancel</Button>
@@ -356,7 +357,41 @@ const SUGGESTED_TARGETS = [
   { domain: 'netflix.com', label: 'Netflix' },
 ]
 
-// === Scan Progress (two-phase funnel) ===
+// === Enrichment pipeline steps for rotating ticker ===
+
+const PROBE_STEPS = [
+  { label: 'Resolving DNS via Google DNS-over-HTTPS', detail: 'A/AAAA record lookups for each variant' },
+  { label: 'Checking domain resolution status', detail: 'Identifying active infrastructure' },
+  { label: 'Filtering to resolving domains', detail: 'Non-resolving variants scored locally only' },
+]
+
+const ENRICH_STEPS = [
+  { label: 'Querying RDAP registration data', detail: 'Registrar, creation date, expiration via rdap.org' },
+  { label: 'Scanning Certificate Transparency logs', detail: 'SSL/TLS certificates via crt.sh' },
+  { label: 'Checking Spamhaus Domain Blocklist', detail: 'Phishing, malware, and botnet C&C classification' },
+  { label: 'Querying URLhaus malicious URL database', detail: 'abuse.ch threat intelligence feed' },
+  { label: 'Pulling AlienVault OTX threat reports', detail: 'Community-sourced threat intelligence' },
+  { label: 'Computing Levenshtein similarity scores', detail: 'Normalized string distance to brand domain' },
+  { label: 'Detecting homoglyph substitutions', detail: 'Visual lookalike character analysis' },
+  { label: 'Analyzing credential-themed keywords', detail: 'Login, verify, secure, banking pattern detection' },
+  { label: 'Scoring compound threat signals', detail: 'DNS + cert + fresh registration = high confidence' },
+  { label: 'Generating AI analyst summaries', detail: 'Signal-aware narrative for each threat' },
+]
+
+function useRotatingIndex(items: unknown[], intervalMs: number, active: boolean): number {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    if (!active) return
+    setIndex(0)
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % items.length)
+    }, intervalMs)
+    return () => clearInterval(timer)
+  }, [items.length, intervalMs, active])
+  return index
+}
+
+// === Scan Progress (two-phase funnel with enrichment ticker) ===
 
 function ScanProgress({
   phase, probeCount, totalVariants, resolvedCount, enrichedCount, enrichTotal,
@@ -368,6 +403,14 @@ function ScanProgress({
   enrichedCount: number
   enrichTotal: number
 }) {
+  const isProbing = phase === 'probing'
+  const isEnriching = phase === 'enriching'
+  const isActive = isProbing || isEnriching
+
+  const steps = isEnriching ? ENRICH_STEPS : PROBE_STEPS
+  const tickerIndex = useRotatingIndex(steps, 2800, isActive)
+  const currentStep = steps[tickerIndex]
+
   if (phase === 'idle' || phase === 'complete') return null
 
   let label = ''
@@ -376,44 +419,86 @@ function ScanProgress({
 
   switch (phase) {
     case 'generating':
-      label = 'Generating variants...'
+      label = 'Generating domain variants...'
       break
     case 'probing':
-      label = 'Probing DNS...'
+      label = 'Probing DNS'
       progress = totalVariants > 0 ? (probeCount / totalVariants) * 100 : 0
-      detail = `${probeCount} / ${totalVariants} variants checked`
+      detail = `${probeCount} / ${totalVariants}`
       break
     case 'enriching':
-      label = 'Enriching active domains...'
+      label = 'Enriching active domains'
       progress = enrichTotal > 0 ? (enrichedCount / enrichTotal) * 100 : 0
       detail = `${enrichedCount} / ${enrichTotal}`
       break
   }
 
   return (
-    <div className="mt-4">
-      {phase === 'enriching' && enrichedCount === 0 && (
-        <div className="mb-2 text-xs text-primary font-medium">
+    <div className="mt-4 space-y-3">
+      {/* Phase transition message */}
+      {isEnriching && enrichedCount === 0 && (
+        <div className="text-xs text-primary font-medium">
           {resolvedCount} of {totalVariants} variants resolve → enriching active domains...
         </div>
       )}
-      {phase === 'probing' && resolvedCount > 0 && (
-        <div className="mb-2 text-xs text-text-secondary">
+      {isProbing && resolvedCount > 0 && (
+        <div className="text-xs text-text-secondary">
           {resolvedCount} resolving so far...
         </div>
       )}
-      <div className="flex items-center justify-between text-xs text-text-secondary mb-1.5">
-        <span>{label}</span>
-        <span>{detail}</span>
+
+      {/* Progress bar */}
+      <div>
+        <div className="flex items-center justify-between text-xs text-text-secondary mb-1.5">
+          <span>{label}</span>
+          <span className="tabular-nums">{detail}</span>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
-      <div className="h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
-        <div
-          className="h-full rounded-full bg-primary transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+
+      {/* Rotating enrichment ticker */}
+      {isActive && currentStep && (
+        <div className="flex items-start gap-2.5 rounded-lg border border-border bg-background px-3.5 py-2.5 overflow-hidden">
+          <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary animate-pulse" />
+          <div className="min-w-0 overflow-hidden">
+            <div
+              key={`${phase}-${tickerIndex}`}
+              className="animate-[fadeSlideIn_0.4s_ease-out]"
+            >
+              <div className="text-xs font-medium text-foreground truncate">{currentStep.label}</div>
+              <div className="text-[11px] text-text-tertiary truncate">{currentStep.detail}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+// === Session persistence (survives navigation, clears on tab close) ===
+
+const SESSION_KEY = 'sentinel-scan-session'
+
+function saveSession(session: ScanSession | null) {
+  if (session) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  } else {
+    sessionStorage.removeItem(SESSION_KEY)
+  }
+}
+
+function restoreSession(): ScanSession | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
 }
 
 // === LiveScan Page ===
@@ -422,9 +507,9 @@ export default function LiveScan() {
   const { state, loadScanData } = useAppState()
   const navigate = useNavigate()
 
-  // Scan state (session-only)
+  // Scan state — restored from sessionStorage on mount
   const [domainInput, setDomainInput] = useState('')
-  const [session, setSession] = useState<ScanSession | null>(null)
+  const [session, setSession] = useState<ScanSession | null>(() => restoreSession())
   const [isScanning, setIsScanning] = useState(false)
   const [scanPhase, setScanPhase] = useState<ScanPhase>('idle')
   const [probeCount, setProbeCount] = useState(0)
@@ -444,6 +529,12 @@ export default function LiveScan() {
 
   // Modal state
   const [showConfirm, setShowConfirm] = useState(false)
+
+  // Persist session to sessionStorage on changes
+  const [pushed, setPushed] = useState(false)
+  useEffect(() => {
+    if (!isScanning) saveSession(session)
+  }, [session, isScanning])
 
   // Input validation
   const [inputError, setInputError] = useState('')
@@ -487,6 +578,7 @@ export default function LiveScan() {
     setSearch('')
     setFilters({ riskLevel: '', method: '' })
     setCurrentPage(1)
+    setPushed(false)
 
     // Generate variants
     const variants = generateVariants(cleaned)
@@ -593,10 +685,46 @@ export default function LiveScan() {
   function handlePushToSentinel() {
     if (!session) return
     const completedResults = session.results.filter((r) => r.enrichmentStatus === 'complete')
-    const newState = buildAppStateFromScan(completedResults, state.vendors)
+    const newState = buildAppStateFromScan(completedResults, state.vendors, {
+      scanMeta: {
+        brandDomain: session.brandDomain,
+        scannedAt: session.startedAt,
+        totalProbed: session.stats.totalGenerated,
+        totalResolved: session.resolvedCount,
+      },
+    })
     loadScanData(newState)
     setShowConfirm(false)
-    navigate('/')
+    setPushed(true)
+  }
+
+  function handleLoadSampleData() {
+    const sampleSession: ScanSession = {
+      brandDomain: SAMPLE_BRAND,
+      startedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      phase: 'complete',
+      resolvedCount: SAMPLE_TOTAL_RESOLVED,
+      results: sampleScanResults,
+      stats: {
+        totalGenerated: SAMPLE_TOTAL_PROBED,
+        totalEnriched: sampleScanResults.length,
+        highRisk: sampleScanResults.filter((r) => r.riskLevel === 'High').length,
+        mediumRisk: sampleScanResults.filter((r) => r.riskLevel === 'Medium').length,
+        lowRisk: sampleScanResults.filter((r) => r.riskLevel === 'Low').length,
+      },
+    }
+    setSession(sampleSession)
+    const newState = buildAppStateFromScan(sampleScanResults, state.vendors, {
+      scanMeta: {
+        brandDomain: SAMPLE_BRAND,
+        scannedAt: new Date().toISOString(),
+        totalProbed: SAMPLE_TOTAL_PROBED,
+        totalResolved: SAMPLE_TOTAL_RESOLVED,
+      },
+    })
+    loadScanData(newState)
+    setPushed(true)
   }
 
   // Filter + sort + paginate results
@@ -743,14 +871,35 @@ export default function LiveScan() {
         {/* Action Bar */}
         {scanComplete && hasResults && (
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setShowConfirm(true)}
-              className="h-9 px-5"
-              disabled={liveStats.highRisk + liveStats.mediumRisk === 0}
-            >
-              <Zap className="size-4 mr-2" />
-              Push to Sentinel
-            </Button>
+            {pushed ? (
+              <>
+                <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-muted px-4 py-2">
+                  <CheckCircle2 className="size-4 text-success" />
+                  <span className="text-sm font-medium text-success">Pushed to Sentinel</span>
+                </div>
+                <Button
+                  variant="outline"
+                  className="h-9 px-5"
+                  onClick={() => navigate('/')}
+                >
+                  Go to Dashboard
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={() => setShowConfirm(true)}
+                  className="h-9 px-5"
+                  disabled={liveStats.highRisk + liveStats.mediumRisk === 0}
+                >
+                  <Zap className="size-4 mr-2" />
+                  Push to Sentinel
+                </Button>
+                <span className="text-xs text-muted-foreground ml-2">
+                  {liveStats.highRisk + liveStats.mediumRisk} actionable results will be pushed
+                </span>
+              </>
+            )}
             <Button
               variant="outline"
               className="h-9 px-5"
@@ -759,9 +908,6 @@ export default function LiveScan() {
               <Download className="size-4 mr-2" />
               Export CSV
             </Button>
-            <span className="text-xs text-muted-foreground ml-2">
-              {liveStats.highRisk + liveStats.mediumRisk} actionable results will be pushed
-            </span>
           </div>
         )}
 
@@ -807,6 +953,12 @@ export default function LiveScan() {
             <p className="text-sm text-text-secondary max-w-md">
               The scanner generates suspicious domain variants, probes DNS to find active ones, then enriches with registration, certificate, and threat intelligence data. Try a major brand — financial institutions and tech companies attract the most typosquatting activity.
             </p>
+            <button
+              onClick={handleLoadSampleData}
+              className="mt-6 text-xs text-text-tertiary hover:text-primary transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)] underline underline-offset-2"
+            >
+              Or load sample data to explore the workflow →
+            </button>
           </div>
         )}
       </div>

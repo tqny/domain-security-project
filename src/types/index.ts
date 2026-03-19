@@ -37,6 +37,8 @@ export interface CaseNote {
   createdAt: string
 }
 
+export type TriageStatus = 'pending' | 'agreed' | 'manual-review'
+
 export interface Case {
   id: string
   title: string
@@ -55,6 +57,7 @@ export interface Case {
   closedAt: string | null
   linkedDomainId: string | null
   notes: CaseNote[]
+  triageStatus?: TriageStatus
 }
 
 export interface Evidence {
@@ -121,12 +124,21 @@ export interface EnforcementAction {
 
 // === App State ===
 
+export interface ScanMeta {
+  brandDomain: string
+  scannedAt: string
+  totalProbed: number
+  totalResolved: number
+  totalActionable: number
+}
+
 export interface AppState {
   cases: Case[]
   evidence: Evidence[]
   domains: Domain[]
   vendors: Vendor[]
   enforcementActions: EnforcementAction[]
+  scanMeta?: ScanMeta
 }
 
 // === AI Insights (DATA phase ready) ===

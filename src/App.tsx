@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppProvider } from '@/data/store'
 import Layout from '@/components/shell/Layout'
+import RequireScanData from '@/components/shell/RequireScanData'
 import Overview from '@/components/pages/Overview'
 import Queue from '@/components/pages/Queue'
 import Investigation from '@/components/pages/Investigation'
@@ -16,13 +17,15 @@ function App() {
       <AppProvider>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<Overview />} />
-            <Route path="queue" element={<Queue />} />
-            <Route path="investigation" element={<Investigation />} />
-            <Route path="domains" element={<Domains />} />
-            <Route path="enforcement" element={<Enforcement />} />
-            <Route path="about" element={<About />} />
             <Route path="live-scan" element={<LiveScan />} />
+            <Route path="about" element={<About />} />
+            <Route element={<RequireScanData />}>
+              <Route index element={<Overview />} />
+              <Route path="queue" element={<Queue />} />
+              <Route path="investigation" element={<Investigation />} />
+              <Route path="domains" element={<Domains />} />
+              <Route path="enforcement" element={<Enforcement />} />
+            </Route>
           </Route>
         </Routes>
       </AppProvider>

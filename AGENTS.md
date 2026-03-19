@@ -7,9 +7,9 @@ Part of the portfolio at https://tqny.github.io/Tony-s-Site/
 
 ## Current Phase
 
-**BUILD — Phase F (Live Scan) complete**
+**BUILD — Phase G (Scan-First Rework + Dashboard Overhaul) complete**
 
-Phases progress as: BRIEF → PLAN → BUILD (seed data) → DATA (real pipeline) → POLISH
+Phases progress as: BRIEF → PLAN → BUILD → DATA (real pipeline) → POLISH
 
 Update this field as the project advances.
 
@@ -17,7 +17,9 @@ Update this field as the project advances.
 
 ## What To Do Right Now
 
-Phases A–C (foundation, pages, portfolio surface), Phase E (dashboard enhancement), and Phase F (Live Scan + Bridge) are complete. Phase D (ship) is pending.
+Phases A–C (foundation), Phase E (dashboard enhancement), Phase F (Live Scan), and Phase G (scan-first rework) are complete. Phase D (ship) is pending.
+
+**Important context for Phase G:** The app no longer has seed data. Live Scan is the entry point. Workflow pages are gated behind `RequireScanData`. AI triage happens on the Dashboard via interactive one-at-a-time cards. Sample data available via "Load sample data" on the Live Scan page for quick demos. Branch: `domain-security/rework+fixes`.
 
 1. Read this file, then follow the read order below.
 2. Work from `docs/tasks.md` — next pending tasks.
