@@ -297,7 +297,7 @@ export async function checkSpamhaus(domain: string, abortSignal?: AbortSignal): 
       label: 'Spamhaus Domain Blocklist',
       value: `Listed as: ${categoryStr}`,
       scoreContribution: isInherentlyBad ? 35 : 10,
-      raw: { ip, code, categories },
+      raw: { ip, code: `${major}.${minor}`, categories },
     }
   } catch {
     return null
