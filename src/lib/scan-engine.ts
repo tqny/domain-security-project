@@ -268,7 +268,7 @@ export function computeRiskScore(similarity: number, signals: ScanSignal[]): num
   // Compound bonuses — signal combos that indicate active threats
   const hasDns = signals.some((s) => s.type === 'dns')
   const hasCert = signals.some((s) => s.type === 'cert')
-  const hasRecentRdap = signals.some((s) => s.type === 'rdap' && s.value.includes('recent'))
+  const hasRecentRdap = signals.some((s) => s.type === 'rdap' && (s.raw as { isRecent?: boolean })?.isRecent === true)
   const hasKeyword = signals.some((s) => s.type === 'keyword')
   const hasHomoglyph = signals.some((s) => s.type === 'homoglyph')
   const hasThreatIntel = signals.some((s) => s.type === 'urlhaus' || s.type === 'otx' || s.type === 'spamhaus')
@@ -312,7 +312,7 @@ export function getRecommendedAction(riskLevel: RiskLevel, signals?: ScanSignal[
 
   const hasDns = signals?.some((s) => s.type === 'dns')
   const hasCert = signals?.some((s) => s.type === 'cert')
-  const hasRecentRdap = signals?.some((s) => s.type === 'rdap' && s.value.includes('recent'))
+  const hasRecentRdap = signals?.some((s) => s.type === 'rdap' && (s.raw as { isRecent?: boolean })?.isRecent === true)
   const hasThreatIntel = signals?.some((s) => s.type === 'urlhaus' || s.type === 'otx' || s.type === 'spamhaus')
   const hasHomoglyph = signals?.some((s) => s.type === 'homoglyph')
   const hasKeyword = signals?.some((s) => s.type === 'keyword')
@@ -360,7 +360,7 @@ export function generateAnalystSummary(result: ScanResult): string {
   const domainBase = result.domain.split('.')[0]
   const hasDns = result.signals.some((s) => s.type === 'dns')
   const hasCert = result.signals.some((s) => s.type === 'cert')
-  const hasRecentRdap = result.signals.some((s) => s.type === 'rdap' && s.value.includes('recent'))
+  const hasRecentRdap = result.signals.some((s) => s.type === 'rdap' && (s.raw as { isRecent?: boolean })?.isRecent === true)
   const hasUrlhaus = result.signals.some((s) => s.type === 'urlhaus')
   const hasOtx = result.signals.some((s) => s.type === 'otx')
   const hasSpamhaus = result.signals.some((s) => s.type === 'spamhaus')

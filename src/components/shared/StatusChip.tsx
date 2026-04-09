@@ -121,7 +121,7 @@ export default function StatusChip({ value, type, showIcon = true, className }: 
       )}
     >
       {Icon && <Icon className="size-3" />}
-      <span className="size-1.5 rounded-full bg-current" />
+      {!Icon && <span className="size-1.5 rounded-full bg-current" />}
       {value}
     </span>
   )

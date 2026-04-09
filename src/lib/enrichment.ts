@@ -277,7 +277,6 @@ export async function checkSpamhaus(domain: string, abortSignal?: AbortSignal): 
 
     const major = parseInt(match[1], 10)
     const minor = parseInt(match[2], 10)
-    const code = major * 1000 + minor // e.g., 127.0.1.2 → 1002, but Spamhaus uses the last two octets
 
     // Categorize based on the IP response
     // 127.0.1.2 = spam, 127.0.1.3 = botnet C&C, 127.0.1.4 = phishing, etc.
@@ -422,7 +421,7 @@ export async function enrichVariant(
   // plausible threat intelligence signals for portfolio demo realism.
   const hasRealThreatIntel = urlhausSignal || otxSignal || spamhausSignal
   if (!hasRealThreatIntel && dnsSignal) {
-    const syntheticSignals = buildSyntheticThreatIntel(variant.domain, variant.method, !!certSignal, !!rdapSignal && rdapSignal.value.includes('recent'))
+    const syntheticSignals = buildSyntheticThreatIntel(variant.domain, variant.method, !!certSignal, !!(rdapSignal?.raw as { isRecent?: boolean })?.isRecent)
     signals.push(...syntheticSignals)
   }
 
@@ -454,6 +453,27 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/** Build a fallback ScanResult when enrichment fails for a variant. */
+function buildErrorResult(
+  variant: { domain: string; method: GenerationMethod },
+  brandDomain: string,
+): ScanResult {
+  const similarity = computeSimilarity(variant.domain.split('.')[0], brandDomain.split('.')[0])
+  return {
+    id: `SR-${variant.domain.replace(/[^a-z0-9]/gi, '-')}`,
+    domain: variant.domain,
+    brandDomain,
+    similarity,
+    signals: buildLocalSignals(variant.domain, brandDomain, variant.method, similarity),
+    riskScore: 0,
+    riskLevel: 'Low',
+    recommendedAction: 'Monitor',
+    analystSummary: `Unable to fully enrich ${variant.domain}. Monitor for changes.`,
+    generationMethod: variant.method,
+    enrichmentStatus: 'error',
+  }
+}
+
 /**
  * Enrich variants in batches with progress callbacks.
  * Processes 4 at a time with 500ms delay between batches.
@@ -475,19 +495,7 @@ export async function enrichBatch(
     const batch = variants.slice(i, i + BATCH_SIZE)
     const batchResults = await Promise.all(
       batch.map((v) =>
-        enrichVariant(v, brandDomain, abortSignal).catch((): ScanResult => ({
-          id: `SR-${v.domain.replace(/[^a-z0-9]/gi, '-')}`,
-          domain: v.domain,
-          brandDomain,
-          similarity: computeSimilarity(v.domain.split('.')[0], brandDomain.split('.')[0]),
-          signals: buildLocalSignals(v.domain, brandDomain, v.method, 0),
-          riskScore: 0,
-          riskLevel: 'Low',
-          recommendedAction: 'Monitor',
-          analystSummary: `Unable to fully enrich ${v.domain}. Monitor for changes.`,
-          generationMethod: v.method,
-          enrichmentStatus: 'error',
-        })),
+        enrichVariant(v, brandDomain, abortSignal).catch(() => buildErrorResult(v, brandDomain)),
       ),
     )
 
@@ -611,19 +619,7 @@ export async function enrichResolvedBatch(
     const batch = resolved.slice(i, i + BATCH_SIZE)
     const batchResults = await Promise.all(
       batch.map((v) =>
-        enrichVariant(v, brandDomain, abortSignal, dnsResults.get(v.domain) ?? null).catch((): ScanResult => ({
-          id: `SR-${v.domain.replace(/[^a-z0-9]/gi, '-')}`,
-          domain: v.domain,
-          brandDomain,
-          similarity: computeSimilarity(v.domain.split('.')[0], brandDomain.split('.')[0]),
-          signals: buildLocalSignals(v.domain, brandDomain, v.method, 0),
-          riskScore: 0,
-          riskLevel: 'Low',
-          recommendedAction: 'Monitor',
-          analystSummary: `Unable to fully enrich ${v.domain}. Monitor for changes.`,
-          generationMethod: v.method,
-          enrichmentStatus: 'error',
-        })),
+        enrichVariant(v, brandDomain, abortSignal, dnsResults.get(v.domain) ?? null).catch(() => buildErrorResult(v, brandDomain)),
       ),
     )
 

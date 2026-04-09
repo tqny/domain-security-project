@@ -10,6 +10,7 @@ import DataTable, { type Column, type SortState } from '@/components/shared/Data
 import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
 import DetailPanel from '@/components/shared/DetailPanel'
 import StatusChip from '@/components/shared/StatusChip'
+import { DetailRow, DetailSection } from '@/components/shared/DetailHelpers'
 import { Button } from '@/components/ui/button'
 import {
   Radar,
@@ -253,31 +254,31 @@ function ScanResultDetail({ result }: { result: ScanResult }) {
 
 // === Helper sub-components ===
 
-function DetailRow({ label, value, children, mono }: { label: string; value?: string; children?: React.ReactNode; mono?: boolean }) {
-  return (
-    <div className="flex items-center justify-between gap-2 py-1">
-      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-      <span className={`text-sm text-foreground ${mono ? 'font-mono' : ''}`}>{children ?? value}</span>
-    </div>
-  )
-}
-
-function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="border-t border-border pt-5">
-      <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</h3>
-      {children}
-    </div>
-  )
-}
-
 // === Confirmation Modal ===
 
 function ConfirmModal({ open, onConfirm, onCancel }: { open: boolean; onConfirm: () => void; onCancel: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, onCancel])
+
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-floating">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <div
+        className="mx-4 w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-floating"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Push to Sentinel confirmation"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="flex size-10 items-center justify-center rounded-lg bg-warning-muted">
             <AlertTriangle className="size-5 text-warning" />
@@ -318,18 +319,25 @@ function StatCard({ label, value, icon: Icon, highlight }: { label: string; valu
 
 // === CSV Export ===
 
+function csvField(value: string): string {
+  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`
+  }
+  return value
+}
+
 function exportCsv(results: ScanResult[]) {
   const headers = ['Domain', 'Method', 'Similarity', 'DNS', 'Cert', 'ThreatIntel', 'Score', 'Risk', 'Summary']
   const rows = results.map((r) => [
-    r.domain,
-    r.generationMethod,
+    csvField(r.domain),
+    csvField(r.generationMethod),
     `${Math.round(r.similarity * 100)}%`,
     r.signals.some((s) => s.type === 'dns') ? 'Yes' : 'No',
     r.signals.some((s) => s.type === 'cert') ? 'Yes' : 'No',
     r.signals.some((s) => s.type === 'urlhaus' || s.type === 'otx' || s.type === 'spamhaus') ? 'Yes' : 'No',
     String(r.riskScore),
     r.riskLevel,
-    `"${r.analystSummary.replace(/"/g, '""')}"`,
+    csvField(r.analystSummary),
   ])
 
   const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')

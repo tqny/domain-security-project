@@ -5,11 +5,13 @@ import type { CaseStatus, ThreatType, ActionStatus } from '@/types'
 import type { Case } from '@/types'
 import StatusChip from '@/components/shared/StatusChip'
 import { Button } from '@/components/ui/button'
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Pie, PieChart, Cell, Sector, Legend } from 'recharts'
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Pie, PieChart, Cell, Sector, Legend, RadarChart as RechartsRadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar as RadarShape, ScatterChart, Scatter, ZAxis } from 'recharts'
 import type { TooltipProps } from 'recharts'
 import { type ChartConfig, ChartContainer } from '@/components/ui/chart'
 import { palette, chartTheme } from '@/lib/chart-palette'
 import type { EvidenceType } from '@/types'
+import type { GenerationMethod } from '@/types/scan'
+import { computeSimilarity } from '@/lib/scan-engine'
 import {
   ShieldAlert,
   Flame,
@@ -792,8 +794,6 @@ function EvidenceSourcesChart() {
 
 // === Attack Vector Breakdown (generation methods donut) ===
 
-import type { GenerationMethod } from '@/types/scan'
-
 const METHOD_LABELS: Record<GenerationMethod, string> = {
   'homoglyph': 'Homoglyph',
   'keyword': 'Keyword',
@@ -988,8 +988,6 @@ function ScanFunnel() {
 
 // === Signal Coverage Radar ===
 
-import { RadarChart as RechartsRadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar as RadarShape } from 'recharts'
-
 const signalRadarConfig = {
   coverage: { label: 'Coverage', color: palette.primary },
 } satisfies ChartConfig
@@ -1092,9 +1090,6 @@ function SignalCoverageRadar() {
 }
 
 // === Risk vs Similarity Scatter ===
-
-import { ScatterChart, Scatter, ZAxis } from 'recharts'
-import { computeSimilarity } from '@/lib/scan-engine'
 
 const scatterChartConfig = {
   risk: { label: 'Risk Score', color: palette.primary },

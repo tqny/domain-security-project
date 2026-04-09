@@ -141,13 +141,3 @@ export interface AppState {
   scanMeta?: ScanMeta
 }
 
-// === AI Insights (DATA phase ready) ===
-
-export interface AIInsight {
-  id: string
-  severity: 'critical' | 'warning' | 'info'
-  summary: string
-  suggestedAction: string
-  actionLabel: string
-  caseId?: string
-}

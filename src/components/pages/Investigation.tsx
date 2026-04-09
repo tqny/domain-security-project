@@ -228,7 +228,7 @@ function RiskGauge({ score }: { score: number }) {
     return () => clearTimeout(timer)
   }, [score])
 
-  const rotation = (animatedScore / 100) * 180
+  const rotation = (Math.min(animatedScore, 100) / 100) * 180
   const color = score >= 70 ? 'var(--destructive)' : score >= 45 ? 'var(--warning)' : 'var(--success)'
   const label = score >= 70 ? 'Critical' : score >= 45 ? 'Elevated' : 'Low'
 
@@ -332,6 +332,13 @@ export default function Investigation() {
     ?? state.cases[0]?.id
     ?? null
   )
+
+  // Sync with URL param changes (e.g., navigating from another page)
+  useEffect(() => {
+    if (caseFromUrl && state.cases.find((c) => c.id === caseFromUrl)) {
+      setSelectedCaseId(caseFromUrl)
+    }
+  }, [caseFromUrl, state.cases])
 
   const selectedCase = selectedCaseId
     ? state.cases.find((c) => c.id === selectedCaseId) ?? null

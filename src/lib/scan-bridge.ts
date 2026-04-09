@@ -15,6 +15,7 @@ import type {
   ActionStatus,
   EvidenceType,
 } from '@/types'
+import { OWNERS } from '@/data/store'
 
 // === Constants ===
 
@@ -26,7 +27,6 @@ const TIER2_STATUS_DISTRIBUTION: { status: CaseStatus; weight: number }[] = [
 
 const ACTION_STATUS_POOL: ActionStatus[] = ['Queued', 'Sent', 'In Progress']
 const ACTION_TYPE_POOL: ActionType[] = ['Takedown Notice', 'Registrar Report']
-const OWNERS = ['Sarah Chen', 'Marcus Johnson', 'Alex Rivera', 'Jordan Kim']
 
 // === Helpers ===
 

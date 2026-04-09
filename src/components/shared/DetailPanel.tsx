@@ -59,6 +59,7 @@ export default function DetailPanel({
 
       <aside
         role="dialog"
+        aria-modal="true"
         aria-label={title}
         className={cn(
           'fixed top-0 right-0 h-screen h-dvh bg-surface border-l border-border shadow-floating flex flex-col',

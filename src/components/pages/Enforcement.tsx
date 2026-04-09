@@ -6,6 +6,7 @@ import DataTable, { type Column, type SortState } from '@/components/shared/Data
 import FilterBar, { type FilterDef } from '@/components/shared/FilterBar'
 import DetailPanel from '@/components/shared/DetailPanel'
 import StatusChip from '@/components/shared/StatusChip'
+import { DetailRow, DetailSection } from '@/components/shared/DetailHelpers'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Clock, MoreHorizontal } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -346,26 +347,6 @@ function VendorSummary() {
           </div>
         </div>
       ))}
-    </div>
-  )
-}
-
-// === Helper sub-components ===
-
-function DetailRow({ label, value, children }: { label: string; value?: string; children?: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-2 py-1">
-      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-      <span className="text-sm text-foreground">{children ?? value}</span>
-    </div>
-  )
-}
-
-function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="border-t border-border pt-5">
-      <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</h3>
-      {children}
     </div>
   )
 }

@@ -1,32 +1,14 @@
 import { NavLink } from 'react-router-dom'
 import { useAppState } from '@/data/store'
 import { cn } from '@/lib/utils'
+import { workflowItems } from './nav-items'
 import {
-  LayoutDashboard,
-  Inbox,
-  Search as SearchIcon,
-  Globe,
-  Gavel,
   Info,
   Radar,
 } from 'lucide-react'
 
-interface NavItem {
-  to: string
-  label: string
-  icon: React.ReactNode
-}
-
 export default function NavRail() {
   const { hasData } = useAppState()
-
-  const workflowItems: NavItem[] = [
-    { to: '/', label: 'Dashboard', icon: <LayoutDashboard className="size-[18px]" /> },
-    { to: '/queue', label: 'Case Queue', icon: <Inbox className="size-[18px]" /> },
-    { to: '/investigation', label: 'Investigation', icon: <SearchIcon className="size-[18px]" /> },
-    { to: '/domains', label: 'Domains', icon: <Globe className="size-[18px]" /> },
-    { to: '/enforcement', label: 'Enforcement', icon: <Gavel className="size-[18px]" /> },
-  ]
 
   return (
     <aside
@@ -107,7 +89,7 @@ export default function NavRail() {
                     )}
                     <span className="flex items-center gap-3">
                       <span className={cn('shrink-0', isActive ? 'opacity-100' : 'opacity-70')}>
-                        {item.icon}
+                        <item.icon className="size-[18px]" />
                       </span>
                       <span>{item.label}</span>
                     </span>
@@ -121,7 +103,7 @@ export default function NavRail() {
               >
                 <span className="flex items-center gap-3">
                   <span className="shrink-0 opacity-70">
-                    {item.icon}
+                    <item.icon className="size-[18px]" />
                   </span>
                   <span>{item.label}</span>
                 </span>

@@ -44,7 +44,6 @@ export default function Layout() {
         <MobileNav open={mobileNavOpen} onOpenChange={handleMobileNavChange} />
         <main
           className="flex-1 overflow-y-auto bg-background p-4"
-          id="main-content"
         >
           <Outlet />
         </main>

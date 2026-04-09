@@ -7,12 +7,8 @@ import {
   SheetContent,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { workflowItems } from './nav-items'
 import {
-  LayoutDashboard,
-  Inbox,
-  Search as SearchIcon,
-  Globe,
-  Gavel,
   Info,
   Radar,
 } from 'lucide-react'
@@ -20,12 +16,6 @@ import {
 interface MobileNavProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-}
-
-interface NavItem {
-  to: string
-  label: string
-  icon: React.ReactNode
 }
 
 export default function MobileNav({ open, onOpenChange }: MobileNavProps) {
@@ -36,14 +26,6 @@ export default function MobileNav({ open, onOpenChange }: MobileNavProps) {
   useEffect(() => {
     onOpenChange(false)
   }, [location.pathname, onOpenChange])
-
-  const workflowItems: NavItem[] = [
-    { to: '/', label: 'Dashboard', icon: <LayoutDashboard className="size-5" /> },
-    { to: '/queue', label: 'Case Queue', icon: <Inbox className="size-5" /> },
-    { to: '/investigation', label: 'Investigation', icon: <SearchIcon className="size-5" /> },
-    { to: '/domains', label: 'Domains', icon: <Globe className="size-5" /> },
-    { to: '/enforcement', label: 'Enforcement', icon: <Gavel className="size-5" /> },
-  ]
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -123,7 +105,7 @@ export default function MobileNav({ open, onOpenChange }: MobileNavProps) {
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full bg-primary" />
                       )}
                       <span className={cn('shrink-0', isActive ? 'opacity-100' : 'opacity-70')}>
-                        {item.icon}
+                        <item.icon className="size-5" />
                       </span>
                       <span>{item.label}</span>
                     </>
@@ -134,7 +116,7 @@ export default function MobileNav({ open, onOpenChange }: MobileNavProps) {
                   key={item.to}
                   className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium pointer-events-none opacity-40"
                 >
-                  <span className="shrink-0 opacity-70">{item.icon}</span>
+                  <span className="shrink-0 opacity-70"><item.icon className="size-5" /></span>
                   <span>{item.label}</span>
                 </div>
               )

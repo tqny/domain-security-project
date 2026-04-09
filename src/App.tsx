@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { AppProvider } from '@/data/store'
 import Layout from '@/components/shell/Layout'
 import RequireScanData from '@/components/shell/RequireScanData'
@@ -26,6 +26,23 @@ function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader />}>{children}</Suspense>
 }
 
+function NotFound() {
+  return (
+    <div className="flex flex-1 items-center justify-center p-8">
+      <div className="flex max-w-md flex-col items-center text-center">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground">Page not found</h1>
+        <p className="mb-6 text-sm text-text-secondary">The page you're looking for doesn't exist.</p>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-text-on-accent transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] hover:bg-accent-hover active:scale-[0.98]"
+        >
+          Go to Dashboard
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter basename="/domain-security-project">
@@ -41,6 +58,7 @@ function App() {
               <Route path="domains" element={<Lazy><Domains /></Lazy>} />
               <Route path="enforcement" element={<Lazy><Enforcement /></Lazy>} />
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </AppProvider>

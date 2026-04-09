@@ -54,6 +54,7 @@ export default function FilterBar({
           <select
             value={activeFilters[filter.key] || ''}
             onChange={(e) => onFilterChange(filter.key, e.target.value)}
+            aria-label={`Filter by ${filter.label}`}
             className="h-9 sm:h-8 rounded-lg border border-border bg-surface pl-3 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer transition-colors duration-[var(--duration-fast)]"
           >
             <option value="">{filter.label}</option>
